@@ -1,12 +1,13 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-svg-loader" />
+/// <reference path="../node_modules/@tdesign/uniapp/global.d.ts" />
 
-declare module '*.vue' {
-    import type { DefineComponent } from 'vue'
+// declare module '*.vue' {
+//     import type { DefineComponent } from 'vue'
 
-    const component: DefineComponent<{}, {}, any>
-    export default component
-}
+//     const component: DefineComponent<{}, {}, any>
+//     export default component
+// }
 
 interface ImportMetaEnv {
     /** 网站标题，应用名称 */

@@ -4,14 +4,14 @@ import en from './en.json'
 import zhHans from './zh-Hans.json' // 简体中文
 
 const messages = {
-  en,
-  'zh-Hans': zhHans, // key 不能乱写，查看uniapp官网
+    en,
+    'zh-Hans': zhHans, // key 不能乱写，查看uniapp官网
 }
 
 const i18n = createI18n({
-  locale: uni.getLocale(), // 获取已设置的语言，fallback 语言需要再 manifest.config.ts 中设置
-  messages,
-  allowComposition: true,
+    locale: uni.getLocale(), // 获取已设置的语言，fallback 语言需要再 manifest.config.ts 中设置
+    messages,
+    allowComposition: true,
 })
 
 console.log(uni.getLocale())
@@ -23,28 +23,28 @@ console.log(i18n.global.locale)
  * @returns {string} 返回原始的多语言模板，eg: "{heavy}KG"
  */
 export function getTemplateByKey(key: string) {
-  if (!key) {
-    console.error(`[i18n] Function getTemplateByKey(), key param is required`)
-    return ''
-  }
-  const locale = uni.getLocale()
-  console.log('locale:', locale)
+    if (!key) {
+        console.error(`[i18n] Function getTemplateByKey(), key param is required`)
+        return ''
+    }
+    const locale = uni.getLocale()
+    console.log('locale:', locale)
 
-  const message = messages[locale] // 拿到某个多语言的所有模板（是一个对象)
-  if (Object.keys(message).includes(key)) {
-    return message[key]
-  }
+    const message = messages[locale] // 拿到某个多语言的所有模板（是一个对象)
+    if (Object.keys(message).includes(key)) {
+        return message[key]
+    }
 
-  try {
-    const keyList = key.split('.')
-    return keyList.reduce((pre, cur) => {
-      return pre[cur]
-    }, message)
-  }
-  catch (error) {
-    console.error(`[i18n] Function getTemplateByKey(), key param ${key} is not existed.`)
-    return ''
-  }
+    try {
+        const keyList = key.split('.')
+        return keyList.reduce((pre, cur) => {
+            return pre[cur]
+        }, message)
+    }
+    catch (error) {
+        console.error(`[i18n] Function getTemplateByKey(), key param ${key} is not existed.`)
+        return ''
+    }
 }
 
 /**
@@ -55,16 +55,16 @@ export function getTemplateByKey(key: string) {
  * @returns
  */
 function formatI18n(template: string, data?: any) {
-  return template.replace(/\{([^}]+)\}/g, (match, key: string) => {
+    return template.replace(/\{([^}]+)\}/g, (match, key: string) => {
     // console.log( match, key) // => { detail.height }  detail.height
-    const arr = key.trim().split('.')
-    let result = data
-    while (arr.length) {
-      const first = arr.shift()
-      result = result[first]
-    }
-    return result
-  })
+        const arr = key.trim().split('.')
+        let result = data
+        while (arr.length) {
+            const first = arr.shift()
+            result = result[first]
+        }
+        return result
+    })
 }
 
 /**
@@ -76,6 +76,6 @@ function formatI18n(template: string, data?: any) {
  * @returns
  */
 export function t(key, data?) {
-  return formatI18n(getTemplateByKey(key), data)
+    return formatI18n(getTemplateByKey(key), data)
 }
 export default i18n

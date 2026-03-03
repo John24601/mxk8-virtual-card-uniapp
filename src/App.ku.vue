@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { judgeIsExcludePath } from '@/router/interceptor'
+import { useTokenStore } from '@/store/token'
 import FgTabbar from '@/tabbar/index.vue'
+import { toLoginPage } from '@/utils/toLoginPage'
 import { isPageTabbar } from './tabbar/store'
 import { currRoute } from './utils'
 
 const isCurrentPageTabbar = ref(true)
 onShow(() => {
-    console.log('App.ku.vue onShow', currRoute())
     const { path } = currRoute()
+    // 未登录且当前不在白名单（登录/注册等）→ 统一跳转登录页（含冷启动直接打开内页的情况）
+    const tokenStore = useTokenStore()
+    if (!tokenStore.hasLogin && path && !judgeIsExcludePath(path)) {
+        toLoginPage({ mode: 'reLaunch' })
+        if (typeof toLoginPage.flush === 'function')
+            toLoginPage.flush()
+        return
+    }
     // “蜡笔小开心”提到本地是 '/pages/index/index'，线上是 '/' 导致线上 tabbar 不见了
-    // 所以这里需要判断一下，如果是 '/' 就当做首页，也要显示 tabbar
     if (path === '/') {
         isCurrentPageTabbar.value = true
     }

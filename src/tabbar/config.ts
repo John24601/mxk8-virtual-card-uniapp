@@ -46,9 +46,9 @@ export const customTabbarList: CustomTabBarItem[] = [
         // 注意 unocss 图标需要如下处理：（二选一）
         // 1）在fg-tabbar.vue页面上引入一下并注释掉（见tabbar/index.vue代码第2行）
         // 2）配置到 unocss.config.ts 的 safelist 中
-        iconType: 'unocss',
-        icon: 'i-carbon-home',
-    // badge: 'dot',
+        iconType: 'uiLib',
+        icon: 'home',
+        // badge: 'dot',
     },
     // 鼓包配置示例（2025-12-31）
     // 中间鼓包tabbarItem配置：通常是扫描按钮、发布按钮、更多按钮等，点击触发业务逻辑
@@ -62,28 +62,28 @@ export const customTabbarList: CustomTabBarItem[] = [
     //   isBulge: true,
     // },
     {
-        pagePath: 'pages/i18n/index',
-        text: '%tabbar.i18n%',
-        iconType: 'unocss',
-        icon: 'i-carbon-ibm-watson-language-translator',
-    // badge: 10,
+        pagePath: 'pages/wallet/index',
+        text: '%tabbar.wallet%',
+        iconType: 'uiLib',
+        icon: 'wallet',
+        badge: 10,
     },
+    // {
+    //     pagePath: 'pages/about/about',
+    //     text: '%tabbar.about%',
+    //     // 1）在fg-tabbar.vue页面上引入一下并注释掉（见tabbar/index.vue代码第2行）
+    //     // 2）配置到 unocss.config.ts 的 safelist 中
+    //     iconType: 'unocss',
+    //     icon: 'i-carbon-menu',
+    //     // badge: 10,
+    //     roles: ['admin'],
+    // },
     {
-        pagePath: 'pages/about/about',
-        text: '%tabbar.about%',
-        // 1）在fg-tabbar.vue页面上引入一下并注释掉（见tabbar/index.vue代码第2行）
-        // 2）配置到 unocss.config.ts 的 safelist 中
-        iconType: 'unocss',
-        icon: 'i-carbon-menu',
+        pagePath: 'pages/profile/index',
+        text: '%tabbar.profile%',
+        iconType: 'uiLib',
+        icon: 'user',
         // badge: 10,
-        roles: ['admin'],
-    },
-    {
-        pagePath: 'pages/me/me',
-        text: '%tabbar.me%',
-        iconType: 'unocss',
-        icon: 'i-carbon-user',
-    // badge: 10,
     },
 
     // 其他类型演示

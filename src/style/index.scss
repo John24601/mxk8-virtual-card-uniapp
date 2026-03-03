@@ -16,6 +16,18 @@ page {
 
     // 修改按钮背景色
     // --wot-button-primary-bg-color: green;
+
+    --td-brand-color: rgba(34, 35, 36);
+    --td-brand-color-active: rgba(34, 35, 36);
+    --td-brand-color-disabled: rgba(0, 0, 0, 0.2);
+
+    // 圆角
+    --td-radius-small: 2rpx;
+    --td-radius-default: 4rpx;
+    --td-radius-large: 12rpx;
+    --td-radius-extraLarge: 18rpx;
+
+    --td-button-font-weight: 400;
 }
 
 /*

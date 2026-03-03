@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>设计图 - 卡片详情 | MXK8 虚拟卡</title>
+        <link rel="stylesheet" href="common.css" />
+    </head>
+    <body>
+        <a class="back-link" href="index.html">← 返回设计图索引</a>
+        <div class="wireframe">
+            <header class="wireframe-header">← 返回 &nbsp; 卡片详情</header>
+            <main class="wireframe-main">
+                <div class="block">
+                    <div class="block-label">卡片信息（卡号掩码）</div>
+                    <div>**** **** **** 1234</div>
+                    <div>类型 | 额度 | 有效期</div>
+                </div>
+                <div class="block">
+                    <div class="block-label">操作</div>
+                    <div style="display: flex; gap: 8px">
+                        <span class="tab">查看完整卡号（需二级密码）</span><span class="tab">充值</span>
+                    </div>
+                </div>
+                <div class="block">
+                    <div class="block-label">该卡交易记录</div>
+                    <div class="list-item">商户 | 类型 | 金额 | 时间 | 状态</div>
+                    <div class="list-item">...</div>
+                </div>
+                <div class="block" style="border-style: dashed">
+                    <div class="block-label">查看完整卡号弹窗（二级密码 → 完整卡号、CVV）</div>
+                    <div class="form-row"><div class="mock-input">二级密码</div></div>
+                    <button class="mock-btn">确认</button>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>

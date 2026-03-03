@@ -1,11 +1,14 @@
 {
     "tabbar.home": "Home",
-    "tabbar.about": "About",
-    "tabbar.me": "Me",
-    "tabbar.i18n": "I18n",
-    "i18n.title": "En Title",
-    "alova.title": "Alova Request",
-    "weight": "{heavy}KG",
-    "detail": "{0}cm, {1}KG",
-    "introduction": "I am {name},height:{detail.height},weight:{detail.weight}"
+    "tabbar.wallet": "Wallet",
+    "tabbar.profile": "Profile",
+    "pages.login.title": "MXK8 Virtual Card Management",
+    "pages.login.subtitle": "Safe and convenient virtual card management tool",
+    "pages.login.account": "Email",
+    "pages.login.password": "Password",
+    "pages.login.captcha": "Verification Code",
+    "pages.login.placeholderAccount": "Please enter email",
+    "pages.login.placeholderPassword": "Please enter password",
+    "pages.login.placeholderCaptcha": "Please enter verification code",
+    "pages.login.submit": "Login"
 }

@@ -1,6 +1,7 @@
 import type { CustomRequestOptions } from '@/http/types'
 import { useTokenStore } from '@/store'
 import { getEnvBaseUrl } from '@/utils'
+import { getMxkpayCode } from '@/utils/mxkpayCode'
 import { stringifyQuery } from './tools/queryString'
 
 // 请求基准地址
@@ -47,13 +48,22 @@ const httpInterceptor = {
         // 2. （可选）添加小程序端请求头标识
         options.header = {
             ...options.header,
+            'x-function-code': '3',
+            'x-function-header': '1',
+            'x-platform-header': '1001',
         }
-        // 3. 添加 token 请求头标识
+        // 3. 认证请求头：登录接口使用 Basic（OAuth2 客户端凭证），其它接口使用 Bearer token
+        const isLoginRequest = options.url.includes('oauth/token')
         const tokenStore = useTokenStore()
         const token = tokenStore.updateNowTime().validToken
 
-        if (token) {
+        if (isLoginRequest) {
+            options.header.Authorization = 'Basic d2ViQXBwOndlYkFwcA=='
+        }
+        else if (token) {
             options.header.Authorization = `Bearer ${token}`
+            // 登录后所有接口增加 x-mxkpay-code：access_token + 时间戳 的 AES 加密
+            options.header['x-mxkpay-code'] = getMxkpayCode(token)
         }
         return options
     },

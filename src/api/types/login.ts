@@ -3,16 +3,21 @@ export type AuthMode = 'single' | 'double'
 
 // 单Token响应类型
 export interface ISingleTokenRes {
-    token: string
-    expiresIn: number // 有效期(秒)
+    access_token: string
+    refresh_token: string
+    expires_in: number // 访问令牌有效期(秒)
+    scope: 'app'
+    token_type: 'bearer'
 }
 
 // 双Token响应类型
 export interface IDoubleTokenRes {
-    accessToken: string
-    refreshToken: string
-    accessExpiresIn: number // 访问令牌有效期(秒)
-    refreshExpiresIn: number // 刷新令牌有效期(秒)
+    access_token: string
+    refresh_token: string
+    expires_in: number // 访问令牌有效期(秒)
+    refresh_expires_in: number // 刷新令牌有效期(秒)
+    scope: 'app'
+    token_type: 'bearer'
 }
 
 /**
@@ -25,15 +30,129 @@ export type IAuthLoginRes = ISingleTokenRes | IDoubleTokenRes
  */
 export type UserRole = string
 
+/** 企业联系人/负责人（businessPersonOfficers 项） */
+export interface IBusinessPersonOfficer {
+    id: string
+    createTime: string
+    updateTime: string
+    businessId: string
+    firstName: string | null
+    lastName: string | null
+    jobTitle: string | null
+    phoneNumber: string | null
+    birthDate: string | null
+    socialSecurity: string | null
+    sharesOfOthers: string | null
+    socialSecurityType: string | null
+    socialSecurityNumber: string | null
+    secondIdType: string | null
+    secondIdNumber: string | null
+    chineseFirstName: string
+    chineseLastName: string
+    certificateType: number
+    certificateNumber: string
+    isBeneficialOwner: boolean
+    nation: string
+    personType: number
+    percentageOfShares: string
+    isDel: boolean
+    idvPersonType: string | null
+    businessOwnedPrecentage: string
+    streetAddress: string | null
+    homeAddress: string | null
+    notes: string | null
+    city: string | null
+    state: string | null
+    zip: string | null
+    type: string | null
+}
+
+/**
+ * 用户/企业信息（与后端用户信息接口返回一致）
+ */
 export interface IUserInfoRes {
-    userId: number
-    username: string
-    nickname: string
+    id: string
+    createTime: string
+    updateTime: string
+    userId: string
+    businessToken: string
+    businessType: string | null
+    cardBusinessName: string | null
+    legalRegisteredBusinessName: string
+    englishName: string | null
+    ein: string | null
+    registrationNumber: string | null
+    companyPhoneNumber: string | null
+    businessStructure: string | null
+    structure: number
+    industry: string | null
+    industrySubcategory: string | null
+    companySize: string
+    toKnow: string | null
+    businessNo: string
+    webSite: string | null
+    incorporationType: string | null
+    stateCorporateNumber: string | null
+    stateCorporateType: string | null
+    sameBusinessPersonOfficer: string | null
+    dateEstablished: string | null
+    stateOfIncorporation: string | null
+    isPublic: boolean | null
+    dwollaCustomersId: string | null
+    fundingSourceId: string | null
+    businessNation: string | null
+    mxkAccountBusinessId: string | null
+    socialSecurityType: string | null
+    socialSecurityNumber: string | null
+    secondIdType: string | null
+    secondIdNumber: string | null
+    officeAddressType: number
+    identicalBusinessAddressMailingAddress: string | null
+    code: string | null
+    mobile: string | null
+    activeTime: string | null
+    reasonCode: string | null
+    userStatus: string | null
+    businessPersonOfficers: IBusinessPersonOfficer[]
+    registerVersion: number
+    remark: string | null
+    businessStreetAddress: string | null
+    businessAddressRegisteredGovernment: string | null
+    businessAddressNotes: string | null
+    businessAddressCity: string | null
+    businessAddressState: string | null
+    businessAddressZip: string | null
+    mailingStreetAddress: string | null
+    mailingAddress: string | null
+    mailingAddressNotes: string | null
+    mailingAddressCity: string | null
+    mailingAddressState: string | null
+    mailingAddressZip: string | null
+    firstName: string
+    lastName: string
+    jobTitle: string | null
+    phoneNumber: string
+    birthDate: string | null
+    streetAddress: string | null
+    homeAddress: string | null
+    notes: string | null
+    city: string | null
+    state: string | null
+    zip: string | null
+    socialSecurity: string | null
+    businessOwnedPrecentage: string | null
+    sharesOfOthers: string | null
+    /** 头像（可选，部分接口或前端展示用） */
     avatar?: string
-    /** 同时支持单角色和多角色，你自行选择一种就行 */
-    role?: UserRole
-    roles?: UserRole[]
-    [key: string]: any // 允许其他扩展字段
+}
+
+/**
+ * 用户信息接口的原始响应（data 内再包一层 data + success）
+ * 仅用于 getSysBusinessByCurrentUser 等返回 { data: IUserInfoRes, success: boolean } 的接口
+ */
+export interface IUserInfoApiRes {
+    data: IUserInfoRes
+    success: boolean
 }
 
 // 认证存储数据结构
@@ -89,7 +208,7 @@ export interface IUpdatePassword {
  * @returns 是否为单Token响应
  */
 export function isSingleTokenRes(tokenRes: IAuthLoginRes): tokenRes is ISingleTokenRes {
-    return 'token' in tokenRes && !('refreshToken' in tokenRes)
+    return 'access_token' in tokenRes && !('refresh_expires_in' in tokenRes)
 }
 
 /**
@@ -98,5 +217,5 @@ export function isSingleTokenRes(tokenRes: IAuthLoginRes): tokenRes is ISingleTo
  * @returns 是否为双Token响应
  */
 export function isDoubleTokenRes(tokenRes: IAuthLoginRes): tokenRes is IDoubleTokenRes {
-    return 'accessToken' in tokenRes && 'refreshToken' in tokenRes
+    return 'access_token' in tokenRes && 'refresh_token' in tokenRes && 'refresh_expires_in' in tokenRes
 }

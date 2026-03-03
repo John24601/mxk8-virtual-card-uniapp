@@ -11,15 +11,15 @@
     "less.validate": false, // 禁用 LESS 内置验证
 
     "typescript.tsdk": "node_modules/typescript/lib",
-    "explorer.fileNesting.enabled": true,
-    "explorer.fileNesting.expand": false,
-    "explorer.fileNesting.patterns": {
-        "README.md": "index.html,favicon.ico,robots.txt,CHANGELOG.md",
-        "docker.md": "Dockerfile,docker*.md,nginx*,.dockerignore",
-        "pages.config.ts": "manifest.config.ts,openapi-ts-request.config.ts",
-        "package.json": "tsconfig.json,pnpm-lock.yaml,pnpm-workspace.yaml,LICENSE,.gitattributes,.gitignore,.gitpod.yml,CNAME,.npmrc,.browserslistrc",
-        "eslint.config.mjs": ".commitlintrc.*,.prettier*,.editorconfig,.commitlint.cjs,.eslint*"
-    },
+    // "explorer.fileNesting.enabled": true,
+    // "explorer.fileNesting.expand": false,
+    // "explorer.fileNesting.patterns": {
+    //     "README.md": "index.html,favicon.ico,robots.txt,CHANGELOG.md",
+    //     "docker.md": "Dockerfile,docker*.md,nginx*,.dockerignore",
+    //     "pages.config.ts": "manifest.config.ts,openapi-ts-request.config.ts",
+    //     "package.json": "tsconfig.json,pnpm-lock.yaml,pnpm-workspace.yaml,LICENSE,.gitattributes,.gitignore,.gitpod.yml,CNAME,.npmrc,.browserslistrc",
+    //     "eslint.config.mjs": ".commitlintrc.*,.prettier*,.editorconfig,.commitlint.cjs,.eslint*"
+    // },
 
     // Disable the default formatter, use eslint instead
     "prettier.enable": false,
@@ -98,5 +98,6 @@
     "i18n-ally.localesPaths": [
         "src/locale",
         "src/pages/i18n"
-    ]
+    ],
+    "i18n-ally.keystyle": "nested"
 }

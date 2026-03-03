@@ -1,7 +1,7 @@
 import type {
     ILoginForm,
 } from '@/api/login'
-import type { IAuthLoginRes } from '@/api/types/login'
+import type { IAuthLoginRes, IDoubleTokenRes, ISingleTokenRes } from '@/api/types/login'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue' // 修复：导入 computed
 import {
@@ -18,17 +18,23 @@ import { useUserStore } from './user'
  * 是否是双token模式
  */
 export const isDoubleTokenMode = import.meta.env.VITE_AUTH_MODE === 'double'
+console.log('🚀 ~ isDoubleTokenMode:', isDoubleTokenMode)
 // 初始化状态
 const tokenInfoState = isDoubleTokenMode
     ? {
-            accessToken: '',
-            accessExpiresIn: 0,
-            refreshToken: '',
-            refreshExpiresIn: 0,
+            access_token: '',
+            refresh_token: '',
+            expires_in: 0,
+            refresh_expires_in: 0,
+            scope: 'app' as const,
+            token_type: 'bearer' as const,
         }
     : {
-            token: '',
-            expiresIn: 0,
+            access_token: '',
+            refresh_token: '',
+            expires_in: 0,
+            scope: 'app' as const,
+            token_type: 'bearer' as const,
         }
 
 export const useTokenStore = defineStore(
@@ -57,15 +63,15 @@ export const useTokenStore = defineStore(
 
             // 计算并存储过期时间
             const now = Date.now()
-            if (isSingleTokenRes(val)) {
+            if (isSingleTokenRes(val as ISingleTokenRes)) {
                 // 单token模式
-                const expireTime = now + val.expiresIn * 1000
+                const expireTime = now + val.expires_in * 1000
                 uni.setStorageSync('accessTokenExpireTime', expireTime)
             }
-            else if (isDoubleTokenRes(val)) {
+            else if (isDoubleTokenRes(val as IDoubleTokenRes)) {
                 // 双token模式
-                const accessExpireTime = now + val.accessExpiresIn * 1000
-                const refreshExpireTime = now + val.refreshExpiresIn * 1000
+                const accessExpireTime = now + val.expires_in * 1000
+                const refreshExpireTime = now + val.expires_in * 1000
                 uni.setStorageSync('accessTokenExpireTime', accessExpireTime)
                 uni.setStorageSync('refreshTokenExpireTime', refreshExpireTime)
             }
@@ -122,7 +128,6 @@ export const useTokenStore = defineStore(
         const login = async (loginForm: ILoginForm) => {
             try {
                 const res = await _login(loginForm)
-                console.log('普通登录-res: ', res)
                 await _postLogin(res)
                 uni.showToast({
                     title: '登录成功',
@@ -177,6 +182,19 @@ export const useTokenStore = defineStore(
         }
 
         /**
+         * 仅清除本地登录态，不请求登出接口（用于 401 时避免登出请求再 401 导致循环）
+         */
+        const clearLocalAuth = () => {
+            updateNowTime()
+            uni.removeStorageSync('accessTokenExpireTime')
+            uni.removeStorageSync('refreshTokenExpireTime')
+            tokenInfo.value = { ...tokenInfoState }
+            uni.removeStorageSync('token')
+            const userStore = useUserStore()
+            userStore.clearUserInfo()
+        }
+
+        /**
          * 退出登录 并 删除用户信息
          */
         const logout = async () => {
@@ -188,17 +206,8 @@ export const useTokenStore = defineStore(
                 console.error('退出登录失败:', error)
             }
             finally {
-                updateNowTime()
-
-                // 无论成功失败，都需要清除本地token信息
-                // 清除存储的过期时间
-                uni.removeStorageSync('accessTokenExpireTime')
-                uni.removeStorageSync('refreshTokenExpireTime')
                 console.log('退出登录-清除用户信息')
-                tokenInfo.value = { ...tokenInfoState }
-                uni.removeStorageSync('token')
-                const userStore = useUserStore()
-                userStore.clearUserInfo()
+                clearLocalAuth()
             }
         }
 
@@ -214,11 +223,11 @@ export const useTokenStore = defineStore(
 
             try {
                 // 安全检查，确保refreshToken存在
-                if (!isDoubleTokenRes(tokenInfo.value) || !tokenInfo.value.refreshToken) {
+                if (!isDoubleTokenRes(tokenInfo.value) || !tokenInfo.value.refresh_token) {
                     throw new Error('无效的refreshToken')
                 }
 
-                const refreshToken = tokenInfo.value.refreshToken
+                const refreshToken = tokenInfo.value.refresh_token
                 const res = await _refreshToken(refreshToken)
                 console.log('刷新token-res: ', res)
                 setTokenInfo(res)
@@ -246,10 +255,10 @@ export const useTokenStore = defineStore(
             }
 
             if (!isDoubleTokenMode) {
-                return isSingleTokenRes(tokenInfo.value) ? tokenInfo.value.token : ''
+                return isSingleTokenRes(tokenInfo.value) ? tokenInfo.value.access_token : ''
             }
             else {
-                return isDoubleTokenRes(tokenInfo.value) ? tokenInfo.value.accessToken : ''
+                return isDoubleTokenRes(tokenInfo.value) ? tokenInfo.value.access_token : ''
             }
         })
 
@@ -261,10 +270,10 @@ export const useTokenStore = defineStore(
                 return false
             }
             if (isDoubleTokenMode) {
-                return isDoubleTokenRes(tokenInfo.value) && !!tokenInfo.value.accessToken
+                return isDoubleTokenRes(tokenInfo.value) && !!tokenInfo.value.access_token
             }
             else {
-                return isSingleTokenRes(tokenInfo.value) && !!tokenInfo.value.token
+                return isSingleTokenRes(tokenInfo.value) && !!tokenInfo.value.access_token
             }
         })
 
@@ -301,6 +310,7 @@ export const useTokenStore = defineStore(
             login,
             wxLogin,
             logout,
+            clearLocalAuth,
 
             // 认证状态判断（最常用的）
             hasLogin: hasValidLogin,

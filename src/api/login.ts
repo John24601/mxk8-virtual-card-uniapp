@@ -1,4 +1,4 @@
-import type { IAuthLoginRes, ICaptcha, IDoubleTokenRes, IUpdateInfo, IUpdatePassword, IUserInfoRes } from './types/login'
+import type { IAuthLoginRes, ICaptcha, IDoubleTokenRes, IUpdateInfo, IUpdatePassword, IUserInfoApiRes } from './types/login'
 import { http } from '@/http/http'
 
 /**
@@ -7,6 +7,10 @@ import { http } from '@/http/http'
 export interface ILoginForm {
     username: string
     password: string
+    grant_type: 'password_code'
+    client_id: 'webApp'
+    client_secret: 'webApp'
+    scope: 'app'
 }
 
 /**
@@ -18,11 +22,11 @@ export function getCode() {
 }
 
 /**
- * 用户登录
+ * 用户登录（POST，参数通过 URL query 传递）
  * @param loginForm 登录表单
  */
 export function login(loginForm: ILoginForm) {
-    return http.post<IAuthLoginRes>('/auth/login', loginForm)
+    return http.post<IAuthLoginRes>('/api-uaa/oauth/token', undefined, loginForm)
 }
 
 /**
@@ -34,17 +38,19 @@ export function refreshToken(refreshToken: string) {
 }
 
 /**
- * 获取用户信息
+ * 获取用户信息（接口返回 data.data 结构，此处解包后返回内层 IUserInfoRes）
  */
 export function getUserInfo() {
-    return http.get<IUserInfoRes>('/user/info')
+    return http
+        .get<IUserInfoApiRes>('/api-pay/sys_business/getSysBusinessByCurrentUser')
+        .then(res => res.data)
 }
 
 /**
  * 退出登录
  */
 export function logout() {
-    return http.get<void>('/auth/logout')
+    return http.post<void>('/api-uaa/oauth/logout')
 }
 
 /**

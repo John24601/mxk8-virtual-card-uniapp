@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+# 产品需求与功能边界
+
+本项目的**产品需求与接口契约**以 [docs/PRD.md](docs/PRD.md) 为唯一事实来源。
+
+## 开发时请遵循
+
+- **新增/修改页面**：页面路径、模块划分以 PRD §4.1–§4.2 为准；界面与交互细节以 §4.3 为准；**布局与区块结构以 [docs/prototypes.md](docs/prototypes.md) 为准**（每页含 Mermaid 结构图与元素清单）。
+- **框架约定**：登录页、登录策略、Token/401 跳转、i18n、store 等见 PRD §2.4。
+- **对接后端接口**：URL、方法、请求/响应字段以 PRD §5 为准；API 代码放在 `src/api/`，按模块拆分（auth、user、pay/cards、pay/funds、pay/bills）。
+- **类型与枚举**：以 PRD §6 为准，在 `src/api/types/` 中统一定义。
+- **业务规则**：以 PRD §7、§7.5 为准（安全/交易/数据规则）；非功能需求见 §8。
+- **环境与域名**：开发环境 `https://api.mxk8.com`，对应 `VITE_SERVER_BASEURL`；请求封装见 `src/http/alova.ts`。
+
+进行功能开发或接口联调前，如遇歧义请优先查阅 PRD 再实现或修改代码。

@@ -1,7 +1,6 @@
 import type { CustomTabBarItem, CustomTabBarItemBadge } from './types'
 import { computed, reactive } from 'vue'
 import { useUserStore } from '@/store/user'
-
 import { tabbarList as _tabbarList, selectedTabbarStrategy, TABBAR_STRATEGY_MAP } from './config'
 
 /** tabbarList 里面的 path 从 pages.config.ts 得到 */

@@ -29,6 +29,19 @@ export function http<T>(options: CustomRequestOptions) {
 
                 if (isTokenExpired) {
                     const tokenStore = useTokenStore()
+                    const url = options.url || ''
+
+                    // 登录接口 401：账号/密码错误，仅 reject，不触发 logout、不跳转
+                    if (url.includes('oauth/token')) {
+                        return reject(res)
+                    }
+                    // 登出接口 401：只清本地，避免再次请求 logout 形成循环
+                    if (url.includes('logout')) {
+                        tokenStore.clearLocalAuth()
+                        return reject(res)
+                    }
+
+                    console.log('🚀 ~ http ~ isDoubleTokenMode:', isDoubleTokenMode)
                     if (!isDoubleTokenMode) {
                         // 未启用双token策略，清理用户信息，跳转到登录页
                         tokenStore.logout()
@@ -37,16 +50,16 @@ export function http<T>(options: CustomRequestOptions) {
                     }
 
                     /* -------- 无感刷新 token ----------- */
-                    const { refreshToken } = tokenStore.tokenInfo as IDoubleTokenRes || {}
+                    const { refresh_token } = tokenStore.tokenInfo as IDoubleTokenRes || {}
                     // token 失效的，且有刷新 token 的，才放到请求队列里
-                    if (refreshToken) {
+                    if (refresh_token) {
                         taskQueue.push(() => {
                             resolve(http<T>(options))
                         })
                     }
 
                     // 如果有 refreshToken 且未在刷新中，发起刷新 token 请求
-                    if (refreshToken && !refreshing) {
+                    if (refresh_token && !refreshing) {
                         refreshing = true
                         try {
                             // 发起刷新 token 请求（使用 store 的 refreshToken 方法）

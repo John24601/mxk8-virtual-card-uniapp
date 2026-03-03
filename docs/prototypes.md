@@ -46,8 +46,8 @@ flowchart TB
 
 ## 2. 首页
 
-- **路由**：`pages/home/index`
-- **文件**：`src/pages/home/index.vue`
+- **路由**：`pages/index/index`
+- **文件**：`src/pages/index/index.vue`
 
 ### 布局说明
 

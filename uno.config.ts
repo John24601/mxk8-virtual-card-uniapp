@@ -71,6 +71,10 @@ export default defineConfig({
         {
             center: 'flex justify-center items-center',
         },
+        // 带 tabbar 页面底部留白，使用动态计算的占位高度（含 tabbar 高度 + 上下安全距离）
+        {
+            'pb-tabbar': 'pb-[var(--tabbar-placeholder-height)]',
+        },
     ],
     // 动态图标需要在这里配置，或者写在vue页面中注释掉
     safelist: [

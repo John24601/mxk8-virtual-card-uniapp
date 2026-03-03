@@ -11,6 +11,8 @@
 
 :root,
 page {
+    // TabBar 占位高度由 App.ku.vue 动态注入，此处仅作回退，避免未注入时报错
+    --tabbar-placeholder-height: 0px;
     // 修改按主题色
     // --wot-color-theme: #37c2bc;
 

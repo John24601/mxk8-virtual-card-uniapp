@@ -28,6 +28,17 @@
 - `store.ts` ，专门给 `自定义 tabbar` 提供状态管理，代码几乎不需要修改。
 - `index.vue` ，专门给 `自定义 tabbar` 提供渲染逻辑，代码可以稍微修改，以符合自己的需求。
 
+## TabBar 占位高度（带 tabbar 的页面底部留白）
+
+自定义 tabbar 为悬浮胶囊风格，占位总高度 = **底部安全距离**（有安全区用安全区，无则 1rem）+ **57px**（tabbar 自身）+ **1rem**（上方与内容间距）。该值由 `placeholder.ts` 动态计算，并在 `App.ku.vue` 根节点注入为 CSS 变量 `--tabbar-placeholder-height`。
+
+**带 tabbar 的页面**可直接使用：
+
+- **UnoCSS 类名**：`pb-tabbar`（即 `padding-bottom: var(--tabbar-placeholder-height)`）
+- **或内联**：`style="padding-bottom: var(--tabbar-placeholder-height)"`
+
+无需再单独写 `pb-safe` 或固定数值，兼容不同设备与底部安全区。
+
 ## 自定义tabbar的不同类型的配置
 
 - uiLib 图标

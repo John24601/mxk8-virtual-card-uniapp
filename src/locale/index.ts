@@ -8,14 +8,40 @@ const messages = {
     'zh-Hans': zhHans, // key 不能乱写，查看uniapp官网
 }
 
+console.log(uni.getLocale())
+
 const i18n = createI18n({
-    locale: uni.getLocale(), // 获取已设置的语言，fallback 语言需要再 manifest.config.ts 中设置
+    locale: typeof uni !== 'undefined' ? uni.getLocale() : (import.meta.env.VITE_FALLBACK_LOCALE as string) || 'en',
     messages,
     allowComposition: true,
 })
 
-console.log(uni.getLocale())
-console.log(i18n.global.locale)
+/**
+ * 强制使用配置的默认语言（与 manifest / env 中 VITE_FALLBACK_LOCALE 一致）。
+ * 建议在 App 根组件的 onLaunch 或 onShow 中调用，以覆盖微信小程序等平台按系统语言设置的行为。
+ */
+export function ensureDefaultLocale() {
+    const defaultLocale = (import.meta.env.VITE_FALLBACK_LOCALE as string) || 'en'
+    if (typeof uni !== 'undefined' && uni.setLocale) {
+        uni.setLocale(defaultLocale)
+    }
+    if (i18n.global.locale !== defaultLocale) {
+        i18n.global.locale = defaultLocale
+    }
+}
+
+/**
+ * 设置应用当前语言（用于设置页切换语言），同步 uni 与 vue-i18n。
+ */
+export function setAppLocale(locale: string) {
+    console.log('🚀 ~ setAppLocale ~ locale:', locale)
+    if (typeof uni !== 'undefined' && uni.setLocale) {
+        uni.setLocale(locale)
+    }
+    if (i18n.global.locale !== locale) {
+        i18n.global.locale = locale
+    }
+}
 
 /**
  * 可以拿到原始的语言模板，非 vue 文件使用这个方法，
@@ -28,7 +54,7 @@ export function getTemplateByKey(key: string) {
         return ''
     }
     const locale = uni.getLocale()
-    console.log('locale:', locale)
+    // console.log('locale:', locale)
 
     const message = messages[locale] // 拿到某个多语言的所有模板（是一个对象)
     if (Object.keys(message).includes(key)) {

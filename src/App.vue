@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
+// import { ensureDefaultLocale } from '@/locale'
 import { navigateToInterceptor } from '@/router/interceptor'
 
 onLaunch((options) => {
     console.log('App.vue onLaunch', options)
+    // ensureDefaultLocale()
 })
 onShow((options) => {
     console.log('App.vue onShow', options)

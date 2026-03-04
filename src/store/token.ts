@@ -6,7 +6,6 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue' // 修复：导入 computed
 import {
     login as _login,
-    logout as _logout,
     refreshToken as _refreshToken,
     wxLogin as _wxLogin,
     getWxCode,
@@ -18,7 +17,6 @@ import { useUserStore } from './user'
  * 是否是双token模式
  */
 export const isDoubleTokenMode = import.meta.env.VITE_AUTH_MODE === 'double'
-console.log('🚀 ~ isDoubleTokenMode:', isDoubleTokenMode)
 // 初始化状态
 const tokenInfoState = isDoubleTokenMode
     ? {
@@ -198,17 +196,19 @@ export const useTokenStore = defineStore(
          * 退出登录 并 删除用户信息
          */
         const logout = async () => {
-            try {
-                // TODO 实现自己的退出登录逻辑
-                await _logout()
-            }
-            catch (error) {
-                console.error('退出登录失败:', error)
-            }
-            finally {
-                console.log('退出登录-清除用户信息')
-                clearLocalAuth()
-            }
+            console.log('退出登录-清除用户信息')
+            clearLocalAuth()
+            // try {
+            //     // TODO 实现自己的退出登录逻辑
+            //     await _logout()
+            // }
+            // catch (error) {
+            //     console.error('退出登录失败:', error)
+            // }
+            // finally {
+            //     console.log('退出登录-清除用户信息')
+            //     clearLocalAuth()
+            // }
         }
 
         /**

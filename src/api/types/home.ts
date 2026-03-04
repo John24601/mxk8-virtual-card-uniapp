@@ -4,26 +4,20 @@
 
 /** 用户账户余额（getUserAccount） */
 export interface IUserAccountRes {
+    /** 总余额 */
+    Amount?: number
     /** 可用金额 */
     AvailableAmount?: number
-    availableAmount?: number
     /** 卡片总余额 */
     CardBalance?: number
-    cardBalance?: number
-    /** 总余额 */
-    totalBalance?: number
-    /** 可用余额（与 AvailableAmount 二选一） */
-    availableBalance?: number
-    /** 冻结余额 */
-    frozenBalance?: number
 }
 
 /** 收支统计（totalFundAmount） */
 export interface IFundStatsRes {
     /** 收入金额 */
-    mxk_pay_money_in?: number
+    mxk_pay_money_in?: string
     /** 支出金额 */
-    mxk_pay_money_out?: number
+    mxk_pay_money_out?: string
 }
 
 /** 交易类型（PRD §6.2），后端可能为数字码或字符串 */
@@ -37,27 +31,59 @@ export type TransactionStatus = 'SUCCESS' | 'FAILED' | 'PENDING' | 'CANCELLED' |
  */
 export interface IBillRecord {
     id: string
-    /** 交易金额，后端可能返回 string 如 "20.0" */
-    transactionAmount: number | string
-    /** 交易类型码（数字，如 1000）或类型名 */
-    transactionType?: number | string
-    transactionTypeName?: string
-    /** 交易状态：后端可能为 boolean（true=通过）或字符串 */
-    transactionStatus?: boolean | string
-    transactionStatusName?: string
-    /** 接口返回的 status 字段，如 "PENDING" */
-    status?: string
-    merchantName?: string
-    createTime?: string
-    transactionTime?: string
-    /** 展示用类型名，如 "Pre-Authorization" */
-    type?: string
+    businessToken: string
+    reversalStatus: number
+    transactionToken: string
+    cardNumber: string
+    cardName: string
+    cardToken: string
+    cardBin: string
+    createTime: string
+    /** 如 "PENDING" | "COMPLETED" */
+    status: string
+    merchantName: string
+    merchantAddress: string
+    /** 交易金额，后端返回 string 如 "20.0" */
+    transactionAmount: string
+    transactionTime: string
+    /** 展示用类型名，如 "Pre-Authorization" | "authorization" */
+    type: string
+    reason: string
+    remarks: string
+    businessNo: string
+    legalRegisteredBusinessName: string
+    source: number
+    transactionType: number
+    transactionStatus: boolean
+    transactionTypeName: string
+    transactionStatusName: string
+    isShowTypeColour: boolean
+    isShowStatusColour: boolean
+    realTime: string | null
+    departmentName: string | null
+    updateTime: string
+    isShow: boolean
+    isShowTransactionFee: boolean
+    transactionFee: number
+    userEntityType: string | null
     /** 展示用金额，如 "20.0" */
-    showAmount?: string
+    showAmount: string
+    amountTip: string | null
+    currencyCode: string
+    childAccountName: string | null
 }
 
-/** 交易列表分页响应 */
+/** 交易列表分页响应（含 MyBatis-Plus 分页字段） */
 export interface IBillListRes {
     records: IBillRecord[]
     total: number
+    size: number
+    current: number
+    orders: unknown[]
+    optimizeCountSql: boolean
+    hitCount: boolean
+    countId: string | null
+    maxLimit: number | null
+    searchCount: boolean
+    pages: number
 }

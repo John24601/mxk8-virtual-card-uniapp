@@ -62,10 +62,10 @@ export const customTabbarList: CustomTabBarItem[] = [
     //   isBulge: true,
     // },
     {
-        pagePath: 'pages/wallet/index',
-        text: '%tabbar.wallet%',
+        pagePath: 'pages/cards/index',
+        text: '%tabbar.cards%',
         iconType: 'uiLib',
-        icon: 'wallet',
+        icon: 'creditcard',
         badge: 10,
     },
     // {

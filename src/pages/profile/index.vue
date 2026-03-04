@@ -5,6 +5,9 @@ import { useTokenStore } from '@/store/token'
 import { useUserStore } from '@/store/user'
 import { toLoginPage } from '@/utils/toLoginPage'
 
+defineOptions({
+    name: 'Profile',
+})
 definePage({
     style: {
         navigationStyle: 'custom',
@@ -44,6 +47,8 @@ async function handleLogout() {
         uni.showModal({
             title: t('profile.logoutConfirmTitle'),
             content: t('profile.logoutConfirmContent'),
+            cancelText: t('common.cancel'),
+            confirmText: t('common.confirm'),
             success: res => resolve(res.confirm),
             fail: () => resolve(false),
         })

@@ -41,7 +41,7 @@ export function http<T>(options: CustomRequestOptions) {
                         return reject(res)
                     }
 
-                    console.log('🚀 ~ http ~ isDoubleTokenMode:', isDoubleTokenMode)
+                    // console.log('🚀 ~ http ~ isDoubleTokenMode:', isDoubleTokenMode)
                     if (!isDoubleTokenMode) {
                         // 未启用双token策略，清理用户信息，跳转到登录页
                         tokenStore.logout()
@@ -107,14 +107,18 @@ export function http<T>(options: CustomRequestOptions) {
 
                 // 处理其他成功状态（HTTP状态码200-299）
                 if (res.statusCode >= 200 && res.statusCode < 300) {
-                    // 处理业务逻辑错误
-                    if (code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
+                    // 仅当响应为标准包装（含 code）且非成功码时，视为业务错误
+                    if (code !== undefined && code !== null && code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
                         uni.showToast({
                             icon: 'none',
                             title: responseData.msg || responseData.message || '请求错误',
                         })
                     }
-                    return resolve(responseData.data)
+                    // 兼容两种格式：标准 { code, data } 取 data；否则整 body 即为结果（如卡片详情匿名接口）
+                    const payload = Object.prototype.hasOwnProperty.call(responseData, 'data')
+                        ? responseData.data
+                        : responseData
+                    return resolve(payload as T)
                 }
 
                 // 处理其他错误

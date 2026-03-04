@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { safeAreaInsets } from '@/utils/systemInfo'
+import { systemInfo } from '@/utils/systemInfo'
 import { customTabbarEnable, needHideNativeTabbar, tabbarCacheEnable } from './config'
 import { setTabbarItem } from './i18n'
 import { tabbarList, tabbarStore } from './store'
@@ -29,7 +29,7 @@ function onChange(e: any) {
 
 // 底部安全距离为 0 时用 1rem，否则用 env(safe-area-inset-bottom)
 const tabBarBottom = computed(() => {
-    const bottom = safeAreaInsets?.bottom ?? 0
+    const bottom = systemInfo?.safeAreaInsets?.bottom ?? 0
     return bottom === 0 ? '1rem' : 'env(safe-area-inset-bottom)'
 })
 

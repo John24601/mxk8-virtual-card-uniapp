@@ -6,10 +6,10 @@
 import { systemInfo } from '@/utils/systemInfo'
 
 /** TabBar 自身高度（悬浮胶囊条），与设计一致 */
-export const TABBAR_HEIGHT_PX = 57
+export const TABBAR_HEIGHT_PX = uni.upx2px(80 + 32)
 
 /** 无 document 环境（小程序/App）下 1rem 的默认 px，与常见根字号一致 */
-const DEFAULT_REM_PX = uni.upx2px(16 * 2)
+const DEFAULT_REM_PX = uni.upx2px(32)
 
 /**
  * 获取当前环境 1rem 对应的 px 值（用于与 safe-area 相加时统一单位）
@@ -31,14 +31,12 @@ export function getRemPx(): number {
 
 /**
  * 计算 TabBar 占位总高度（px）
- * = 底部距离（有安全区用安全区，无则 1rem）+ 57px + 上方 1rem
+ * = 底部距离（有安全区用安全区，无则 1rem）+ TABBAR_HEIGHT_PX + 上方 1rem
  */
 export function getTabbarPlaceholderHeightPx(): number {
     const remPx = getRemPx()
     const bottomSafe = systemInfo?.safeAreaInsets?.bottom ?? 0
     const bottomGap = bottomSafe > 0 ? bottomSafe : remPx
-    console.log('🚀 ~ getTabbarPlaceholderHeightPx ~ bottomGap:', bottomGap)
-    console.log('🚀 ~ getTabbarPlaceholderHeightPx ~ remPx:', remPx)
     return bottomGap + TABBAR_HEIGHT_PX + remPx
 }
 

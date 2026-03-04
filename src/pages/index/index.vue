@@ -11,6 +11,7 @@ definePage({
     type: 'home',
     style: {
         navigationBarTitleText: '%home.title%',
+        enablePullDownRefresh: true,
     },
 })
 
@@ -28,7 +29,7 @@ const availableBalance = computed(() => {
     const a = account.value
     if (!a)
         return 0
-    return (a.AvailableAmount ?? a.availableAmount ?? a.availableBalance) ?? 0
+    return a.AvailableAmount ?? 0
 })
 
 /** 卡片总余额 */
@@ -36,7 +37,7 @@ const cardTotalBalance = computed(() => {
     const a = account.value
     if (!a)
         return 0
-    return (a.CardBalance ?? a.cardBalance) ?? 0
+    return a.CardBalance ?? 0
 })
 
 /** 已用额度 = 卡片总余额 - 可用余额（设计图逻辑） */
@@ -125,8 +126,8 @@ async function fetchStats() {
 async function fetchRecentBills() {
     loadingBills.value = true
     try {
-        const res = await getBillList({ current: 1, pageSize: 5 })
-        recentBills.value = res?.records ?? []
+        const res = await getBillList()
+        recentBills.value = res.records ?? []
     }
     catch {
         recentBills.value = []
@@ -137,17 +138,22 @@ async function fetchRecentBills() {
 }
 
 async function onRefresh() {
-    await Promise.all([fetchAccount(), fetchStats(), fetchRecentBills()])
+    return await Promise.all([fetchAccount(), fetchStats(), fetchRecentBills()])
 }
 
 watch(statsDay, fetchStats)
 
-onLoad(() => {
+onShow(() => {
     onRefresh()
 })
 
+onPullDownRefresh(async () => {
+    await onRefresh()
+    uni.stopPullDownRefresh()
+})
+
 function goCards() {
-    uni.navigateTo({ url: '/pages/cards/list' })
+    uni.switchTab({ url: '/pages/cards/index' })
 }
 function goBills() {
     uni.navigateTo({ url: '/pages/bills/list' })
@@ -164,142 +170,131 @@ function goBillsList() {
 </script>
 
 <template>
-    <view class="home-page box-border min-h-100vh flex flex-col bg-gray-100 pb-tabbar">
+    <view class="home-page box-border min-h-100vh flex flex-col bg-gray-50 pb-tabbar">
         <!-- <t-navbar :title="t('home.title')" placeholder /> -->
 
-        <scroll-view
-            scroll-y
-            class="flex-1"
-            refresher-enabled
-            :refresher-triggered="loading"
-            @refresherrefresh="onRefresh"
-        >
-            <!-- 余额区：蓝色卡片 -->
-            <view class="balance-card mx-4 mt-4 rounded-2xl px-5 py-5" style="background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);">
-                <view class="flex items-center justify-between">
-                    <text class="text-sm text-white opacity-90">{{ t('home.availableBalanceUnit') }}</text>
-                    <t-icon
-                        name="browse"
-                        size="20px"
-                        class="text-white"
-                        @click="balanceVisible = !balanceVisible"
-                    />
+        <!-- 余额区：蓝色卡片 -->
+        <view class="balance-card mx-4 mt-4 rounded-sm from-[#0052D9] to-[#0034B5] bg-gradient-to-br px-5 py-5">
+            <view class="flex items-center justify-between">
+                <text class="text-sm text-white opacity-90">{{ t('home.availableBalanceUnit') }}</text>
+                <t-icon
+                    name="browse"
+                    size="20px"
+                    class="text-white"
+                    @click="balanceVisible = !balanceVisible"
+                />
+            </view>
+            <text class="mt-2 block text-3xl text-white font-bold tracking-tight">
+                {{ formatMoney(availableBalance, !balanceVisible) }}
+            </text>
+            <view class="mt-5 flex gap-6">
+                <view class="flex flex-col">
+                    <text class="text-xs text-white opacity-80">{{ t('home.cardTotalBalance') }}</text>
+                    <text class="mt-1 text-base text-white font-medium">{{ formatMoney(cardTotalBalance, !balanceVisible) }}</text>
                 </view>
-                <text class="mt-2 block text-3xl text-white font-bold tracking-tight">
-                    {{ formatMoney(availableBalance, !balanceVisible) }}
-                </text>
-                <view class="mt-5 flex gap-6">
-                    <view class="flex flex-col">
-                        <text class="text-xs text-white opacity-80">{{ t('home.cardTotalBalance') }}</text>
-                        <text class="mt-1 text-base text-white font-medium">{{ formatMoney(cardTotalBalance, !balanceVisible) }}</text>
-                    </view>
-                    <view class="flex flex-col">
-                        <text class="text-xs text-white opacity-80">{{ t('home.usedLimit') }}</text>
-                        <text class="mt-1 text-base text-white font-medium">{{ formatMoney(usedLimit, !balanceVisible) }}</text>
-                    </view>
+                <view class="flex flex-col">
+                    <text class="text-xs text-white opacity-80">{{ t('home.usedLimit') }}</text>
+                    <text class="mt-1 text-base text-white font-medium">{{ formatMoney(usedLimit, !balanceVisible) }}</text>
                 </view>
             </view>
+        </view>
 
-            <!-- 收支统计 -->
-            <view class="mx-4 mt-4 rounded-2xl bg-white px-4 py-4">
-                <text class="text-base text-gray-900 font-medium">{{ t('home.incomeExpenseStats') }}</text>
-                <view class="mt-3 flex gap-2">
-                    <view
-                        v-for="d in [7, 30, 90]"
-                        :key="d"
-                        class="rounded-lg px-3 py-1.5 text-sm"
-                        :class="statsDay === d ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'"
-                        @click="statsDay = d as 7 | 30 | 90"
-                    >
-                        {{ t(d === 7 ? 'home.day7' : d === 30 ? 'home.day30' : 'home.day90') }}
-                    </view>
+        <!-- 收支统计 -->
+        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+            <text class="text-base text-gray-900 font-medium">{{ t('home.incomeExpenseStats') }}</text>
+            <view class="mt-3 flex gap-2">
+                <view
+                    v-for="d in [7, 30, 90]"
+                    :key="d"
+                    class="rounded-sm px-3 py-1.5 text-sm"
+                    :class="statsDay === d ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'"
+                    @click="statsDay = d as 7 | 30 | 90"
+                >
+                    {{ t(d === 7 ? 'home.day7' : d === 30 ? 'home.day30' : 'home.day90') }}
                 </view>
-                <view class="mt-3 flex gap-3">
-                    <view class="flex-1 rounded-xl bg-green-50 px-4 py-3">
-                        <text class="text-sm text-green-700">{{ t('home.income') }}</text>
-                        <text class="mt-1 block text-lg text-green-600 font-semibold">
-                            {{ balanceVisible ? formatMoney((fundStats?.mxk_pay_money_in) ?? 0) : t('home.amountHidden') }}
+            </view>
+            <view class="mt-3 flex gap-3">
+                <view class="flex-1 rounded-sm bg-green-50 px-4 py-3">
+                    <text class="text-sm text-green-700">{{ t('home.income') }}</text>
+                    <text class="mt-1 block text-lg text-green-600 font-semibold">
+                        {{ balanceVisible ? (fundStats?.mxk_pay_money_in ?? '0.00') : t('home.amountHidden') }}
+                    </text>
+                </view>
+                <view class="flex-1 rounded-sm bg-red-50 px-4 py-3">
+                    <text class="text-sm text-red-700">{{ t('home.expense') }}</text>
+                    <text class="mt-1 block text-lg text-red-600 font-semibold">
+                        {{ balanceVisible ? (fundStats?.mxk_pay_money_out ?? '0.00') : t('home.amountHidden') }}
+                    </text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 快捷入口 -->
+        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+            <view class="grid grid-cols-4 gap-4">
+                <view class="flex flex-col items-center gap-2" @click="goCards">
+                    <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
+                        <t-icon name="creditcard" size="24px" class="text-primary" />
+                    </view>
+                    <text class="text-center text-xs text-gray-700">{{ t('home.shortcutMyCards') }}</text>
+                </view>
+                <view class="flex flex-col items-center gap-2" @click="goBills">
+                    <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
+                        <t-icon name="file-paste" size="24px" class="text-primary" />
+                    </view>
+                    <text class="text-center text-xs text-gray-700">{{ t('home.shortcutBills') }}</text>
+                </view>
+                <view class="flex flex-col items-center gap-2" @click="goFunds">
+                    <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
+                        <t-icon name="chart" size="24px" class="text-primary" />
+                    </view>
+                    <text class="text-center text-xs text-gray-700">{{ t('home.shortcutFunds') }}</text>
+                </view>
+                <view class="flex flex-col items-center gap-2" @click="goProfile">
+                    <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
+                        <t-icon name="user" size="24px" class="text-primary" />
+                    </view>
+                    <text class="text-center text-xs text-gray-700">{{ t('home.shortcutProfile') }}</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- 最近交易 -->
+        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+            <view class="flex items-center justify-between">
+                <text class="text-base text-gray-900 font-medium">{{ t('home.recentTransactions') }}</text>
+                <text class="text-sm text-primary" @click="goBillsList">{{ t('home.viewAll') }}</text>
+            </view>
+            <view v-if="loadingBills" class="py-8 text-center text-sm text-gray-400">
+                加载中…
+            </view>
+            <view v-else-if="recentBills.length === 0" class="py-8 text-center text-sm text-gray-400">
+                暂无交易
+            </view>
+            <view v-else class="mt-3 flex flex-col divide-y divide-gray-100">
+                <view
+                    v-for="item in recentBills"
+                    :key="item.id"
+                    class="flex items-center justify-between py-3"
+                >
+                    <view class="flex flex-col gap-0.5">
+                        <text class="text-sm text-gray-900">{{ billTitle(item) }}</text>
+                        <text class="text-xs text-gray-400">{{ billTime(item) }}</text>
+                    </view>
+                    <view class="flex flex-col items-end gap-0.5">
+                        <text
+                            class="text-sm font-medium"
+                            :class="isBillIncome(item) ? 'text-green-600' : 'text-red-600'"
+                        >
+                            {{ formatBillAmount(item) }}
                         </text>
-                    </view>
-                    <view class="flex-1 rounded-xl bg-red-50 px-4 py-3">
-                        <text class="text-sm text-red-700">{{ t('home.expense') }}</text>
-                        <text class="mt-1 block text-lg text-red-600 font-semibold">
-                            {{ balanceVisible ? formatMoney((fundStats?.mxk_pay_money_out) ?? 0) : t('home.amountHidden') }}
-                        </text>
+                        <text class="text-xs text-green-600">{{ t(statusKey(item)) }}</text>
                     </view>
                 </view>
             </view>
-
-            <!-- 快捷入口 -->
-            <view class="mx-4 mt-4 rounded-2xl bg-white px-4 py-4">
-                <view class="grid grid-cols-4 gap-4">
-                    <view class="flex flex-col items-center gap-2" @click="goCards">
-                        <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
-                            <t-icon name="creditcard" size="24px" class="text-primary" />
-                        </view>
-                        <text class="text-center text-xs text-gray-700">{{ t('home.shortcutMyCards') }}</text>
-                    </view>
-                    <view class="flex flex-col items-center gap-2" @click="goBills">
-                        <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
-                            <t-icon name="file-paste" size="24px" class="text-primary" />
-                        </view>
-                        <text class="text-center text-xs text-gray-700">{{ t('home.shortcutBills') }}</text>
-                    </view>
-                    <view class="flex flex-col items-center gap-2" @click="goFunds">
-                        <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
-                            <t-icon name="chart" size="24px" class="text-primary" />
-                        </view>
-                        <text class="text-center text-xs text-gray-700">{{ t('home.shortcutFunds') }}</text>
-                    </view>
-                    <view class="flex flex-col items-center gap-2" @click="goProfile">
-                        <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
-                            <t-icon name="user" size="24px" class="text-primary" />
-                        </view>
-                        <text class="text-center text-xs text-gray-700">{{ t('home.shortcutProfile') }}</text>
-                    </view>
-                </view>
-            </view>
-
-            <!-- 最近交易 -->
-            <view class="mx-4 mt-4 rounded-2xl bg-white px-4 py-4">
-                <view class="flex items-center justify-between">
-                    <text class="text-base text-gray-900 font-medium">{{ t('home.recentTransactions') }}</text>
-                    <text class="text-sm text-primary" @click="goBillsList">{{ t('home.viewAll') }}</text>
-                </view>
-                <view v-if="loadingBills" class="py-8 text-center text-sm text-gray-400">
-                    加载中…
-                </view>
-                <view v-else-if="recentBills.length === 0" class="py-8 text-center text-sm text-gray-400">
-                    暂无交易
-                </view>
-                <view v-else class="mt-3 flex flex-col divide-y divide-gray-100">
-                    <view
-                        v-for="item in recentBills"
-                        :key="item.id"
-                        class="flex items-center justify-between py-3"
-                    >
-                        <view class="flex flex-col gap-0.5">
-                            <text class="text-sm text-gray-900">{{ billTitle(item) }}</text>
-                            <text class="text-xs text-gray-400">{{ billTime(item) }}</text>
-                        </view>
-                        <view class="flex flex-col items-end gap-0.5">
-                            <text
-                                class="text-sm font-medium"
-                                :class="isBillIncome(item) ? 'text-green-600' : 'text-red-600'"
-                            >
-                                {{ formatBillAmount(item) }}
-                            </text>
-                            <text class="text-xs text-green-600">{{ t(statusKey(item)) }}</text>
-                        </view>
-                    </view>
-                </view>
-            </view>
-        </scroll-view>
+        </view>
     </view>
 </template>
 
 <style lang="scss" scoped>
-.home-page {
-    --primary: #018d71;
-}
 </style>

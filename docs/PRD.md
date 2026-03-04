@@ -88,7 +88,7 @@
 - **资金**：`src/pages/funds/list.vue`。
 - **首页**：`src/pages/home/index.vue`（可与现有 `pages/index/index.vue` 对齐或重命名）。
 
-TabBar 建议与业务对齐，例如：首页、钱包/卡片、我的。当前 tabbar 配置在 `src/tabbar/config.ts`（`customTabbarList` / `nativeTabbarList`）。
+TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar 配置在 `src/tabbar/config.ts`（`customTabbarList` / `nativeTabbarList`）。
 
 ### 4.3 功能需求细节（界面与交互）
 
@@ -136,7 +136,7 @@ TabBar 建议与业务对齐，例如：首页、钱包/卡片、我的。当前
 
 | 接口说明 | 方法 | 路径 | 请求/响应要点 |
 |----------|------|------|----------------|
-| 用户账户余额 | GET | `/api-pay/sys_user_account/getUserAccount` | 返回: `AvailableAmount`, `CardBalance`, `totalBalance`, `availableBalance`, `frozenBalance`。 |
+| 用户账户余额 | GET | `/api-pay/sys_user_account/getUserAccount` | 返回: `Amount`, `AvailableAmount`, `CardBalance`。 |
 | 收支统计 | GET | `/api-pay/sys_funds/totalFundAmount` | Params: `level: 2`, `type: 1`, `day`（7/30/90）。返回: `mxk_pay_money_in`, `mxk_pay_money_out`。 |
 | 资金流水列表 | GET | `/api-pay/sys_funds/list` | Params: `field: 'id,initiated,fundsAvailable,description,type,amount,availableBalance,status'`, `current`, `pageSize`。返回: `records[]`（含 `id`, `type`, `amount`, `availableBalance`, `status`, `description`, `createTime`）, `total`。 |
 | 充值记录 | GET | `/api-pay/sys_funds/getFundsActivityData` | Params: `current`, `pageSize`。返回: `records[]`（`id`, `amount`, `type`, `status`, `createTime`）, `total`。 |
@@ -150,7 +150,7 @@ TabBar 建议与业务对齐，例如：首页、钱包/卡片、我的。当前
 | 卡片总余额 | GET | `/api-pay/sys_business_card/totalCardSurplusLimitAmount` | 返回: number。 |
 | 创建卡片 | POST | `/api-pay/sys_business_card/create` | Body: `cardBin`, `cardType: 'Virtual Card'`, `firstName`, `lastName`, `billingAddress`, `amount`, `expiryDate`, `email`, `phone`, `city`, `state`, `zipCode`, `birthDate`。 |
 | 卡片充值 | PUT | `/api-pay/sys_business_card/updateSurplusLimitAmount` | Body: `id`（卡片ID）, `surplusLimitAmount`（充值金额）。**业务规则**：最低充值 50 美元。 |
-| 切换卡片状态 | PUT | `/api-pay/sys_business_card/changeCardStauts` | Body: `id`, `status`（0: 激活, 1: 禁用）。 |
+| 切换卡片状态 | PUT | `/api-card/sys_business_card/changeCardStauts` | Body: `id`, `status`（0: 激活, 1: 禁用）。 |
 | 卡片详情（匿名） | GET | `/api-pay/business-card-anon/getByCardToken/{cardToken}` | 返回: `id`, `cardNumber`, `cardType`, `availableAmount`, `limitAmount`, `status`, `firstName`, `lastName`, `cardToken`, `expireDate`, `cvv`, `billingAddress`, `createTime`。 |
 | 完整卡号（需二级密码） | GET | `/api-pay/selectCardDetail` | Params: `cardToken`, `secondPassword`。返回: `number`（完整卡号）, `cvc`/`cvv`, `cardNumber`。 |
 | 卡片交易记录 | GET | `/api-pay/sys_business_bill/cardTransactionActivity` | Params: `cardToken`, `current`, `pageSize`。返回: `records[]`（`id`, `merchantName`, `transactionType`, `transactionAmount`, `transactionTime`, `transactionStatus`, `description`）, `total`。 |

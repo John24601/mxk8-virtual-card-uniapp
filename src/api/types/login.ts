@@ -203,6 +203,22 @@ export interface IUpdatePassword {
 }
 
 /**
+ * 修改密码（PRD §5.2：PUT /api-user/sys/user/changPassword）
+ */
+export interface IChangPasswordParams {
+    id: string
+    currentPassword: string
+    password: string
+}
+
+/**
+ * 设置二级密码（PRD §5.2：POST /api-user/sys/user/setSecondPassword）
+ */
+export interface ISetSecondPasswordParams {
+    secondPassword: string
+}
+
+/**
  * 判断是否为单Token响应
  * @param tokenRes 登录响应数据
  * @returns 是否为单Token响应

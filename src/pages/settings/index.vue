@@ -11,6 +11,14 @@ function goToLocale() {
     uni.navigateTo({ url: '/pages/settings/locale' })
 }
 
+function goToPassword() {
+    uni.navigateTo({ url: '/pages/settings/password' })
+}
+
+function goToSecondaryPassword() {
+    uni.navigateTo({ url: '/pages/settings/secondary-password' })
+}
+
 onLoad(() => {
     uni.setNavigationBarTitle({
         title: t('settings.title'),
@@ -21,6 +29,18 @@ onLoad(() => {
 <template>
     <view class="settings-page box-border min-h-100vh flex flex-col bg-white pb-safe">
         <t-cell-group>
+            <t-cell
+                :title="t('settings.changePassword')"
+                arrow
+                hover
+                @click="goToPassword"
+            />
+            <t-cell
+                :title="t('settings.secondaryPassword')"
+                arrow
+                hover
+                @click="goToSecondaryPassword"
+            />
             <t-cell
                 :title="t('settings.localeAndTranslation')"
                 arrow

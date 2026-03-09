@@ -1,4 +1,4 @@
-import type { IAuthLoginRes, ICaptcha, IDoubleTokenRes, IUpdateInfo, IUpdatePassword, IUserInfoApiRes } from './types/login'
+import type { IAuthLoginRes, ICaptcha, IChangPasswordParams, IDoubleTokenRes, ISetSecondPasswordParams, IUpdateInfo, IUpdatePassword, IUserInfoApiRes } from './types/login'
 import { http } from '@/http/http'
 
 /**
@@ -65,6 +65,26 @@ export function updateInfo(data: IUpdateInfo) {
  */
 export function updateUserPassword(data: IUpdatePassword) {
     return http.post('/user/updatePassword', data)
+}
+
+/**
+ * 修改密码（PRD §5.2：PUT /api-user/sys/user/changPassword）
+ */
+export function changPassword(data: IChangPasswordParams) {
+    return http.put<void>('/api-user/sys/user/changPassword', {
+        id: data.id,
+        currentPassword: data.currentPassword,
+        password: data.password,
+    })
+}
+
+/**
+ * 设置二级密码（PRD §5.2：POST /api-user/sys/user/setSecondPassword）
+ */
+export function setSecondPassword(data: ISetSecondPasswordParams) {
+    return http.post<void>('/api-user/sys/user/setSecondPassword', {
+        secondPassword: data.secondPassword,
+    })
 }
 
 /**

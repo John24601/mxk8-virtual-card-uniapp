@@ -1,6 +1,8 @@
 import type {
+    ICardCreateReq,
     ICardDetailRes,
     ICardListApiRes,
+    ICardPermissionRecord,
     ICardTransactionListRes,
 } from '@/api/types/cards'
 import { http } from '@/http/http'
@@ -9,6 +11,8 @@ const LIST_URL = '/api-pay/sys_business_card/list'
 const CHANGE_STATUS_URL = '/api-card/sys_business_card/changeCardStauts'
 const CARD_DETAIL_BASE = '/api-pay/business-card-anon/getByCardToken'
 const CARD_TX_ACTIVITY_URL = '/api-pay/sys_business_bill/cardTransactionActivity'
+const CARD_CREATE_URL = '/api-pay/sys_business_card/create'
+const CARD_PERMISSIONS_URL = '/api-pay/sys_business_card/cardPermissions'
 
 /**
  * 卡片列表（PRD §5.4）
@@ -21,6 +25,21 @@ export function getCardList(params: { current: number, pageSize: number }) {
         column: 'createTime',
         order: 'desc',
     })
+}
+
+/**
+ * 创建卡片（PRD §5.4）
+ */
+export function cardCreate(data: ICardCreateReq) {
+    return http.post<unknown>(CARD_CREATE_URL, data)
+}
+
+/**
+ * 卡段权限列表（PRD §5.4）
+ * 后端返回 { records, total }
+ */
+export function getCardPermissions() {
+    return http.get<ICardPermissionRecord[]>(CARD_PERMISSIONS_URL)
 }
 
 /**

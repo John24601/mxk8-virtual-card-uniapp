@@ -69,9 +69,7 @@ async function onQuery(pageNo: number, pageSize: number) {
 }
 
 function goCreate() {
-    uni.navigateTo({ url: '/pages/cards/create' }).catch(() => {
-        uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
-    })
+    uni.navigateTo({ url: '/pages/cards/create' })
 }
 
 function goDetail(card: ICardRecord) {
@@ -117,7 +115,7 @@ onShow(() => {
         @query="onQuery"
     >
         <template #top>
-            <view class="flex items-center justify-between px-4 py-3">
+            <view class="flex items-center justify-between px-4 pt-3">
                 <view class="flex flex-col">
                     <text class="text-xs text-gray-500">{{ t('pages.cards.totalCardBalance') }}</text>
                     <text class="mt-0.5 text-lg text-gray-900 font-semibold">

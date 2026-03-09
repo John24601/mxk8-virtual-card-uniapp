@@ -111,7 +111,6 @@ async function handleSubmit() {
                 :data="formData"
                 :rules="(rules as any)"
                 label-align="top"
-                show-error-message
                 label-width="100%"
                 :custom-style="{
                     '--td-font-size-m': '24rpx',

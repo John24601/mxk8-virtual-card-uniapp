@@ -228,3 +228,33 @@ export interface ICardTransactionListRes {
     searchCount?: boolean
     pages?: number
 }
+
+/** 创建卡片请求体 */
+export interface ICardCreateReq {
+    cardBin: string
+    cardType: 'Virtual Card'
+    firstName: string
+    lastName: string
+    billingAddress: string
+    amount: number
+    expiryDate?: string
+    email?: string
+    phone?: string
+    city: string
+    state: string
+    zipCode: string
+    birthDate?: string
+}
+
+/** 卡段权限列表单项 */
+export interface ICardPermissionRecord {
+    cardFee: number
+    cardFees: Record<string, string>
+    cardTop: string
+    cardType: string
+    foreignTransactionFeeEquation: string
+    isApply: boolean
+    prepaidCard: boolean
+    showCardBin: string
+    source: string
+}

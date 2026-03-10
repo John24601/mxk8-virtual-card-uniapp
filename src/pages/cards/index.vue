@@ -57,10 +57,10 @@ function cardTypeLabel(card: ICardRecord): string {
 /** z-paging 分页请求：pageNo 从 1 开始，与后端 current 一致 */
 async function onQuery(pageNo: number, pageSize: number) {
     try {
-        const res = await getCardList({ current: pageNo, pageSize })
-        cardAll.value = res?.cardAll ?? null
-        const records = res?.list?.records ?? []
-        const total = res?.list?.total ?? 0
+        const { cardAll, list } = await getCardList({ current: pageNo, pageSize })
+        cardAll.value = cardAll ?? null
+        const records = list.records ?? []
+        const total = list.total ?? 0
         pagingRef.value?.completeByTotal(records, total, true)
     }
     catch {
@@ -112,6 +112,7 @@ onShow(() => {
         ref="pagingRef"
         v-model="list"
         paging-class="bg-gray-50"
+        auto-show-system-loading
         @query="onQuery"
     >
         <template #top>

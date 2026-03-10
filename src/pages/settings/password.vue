@@ -114,6 +114,7 @@ async function handleSubmit() {
                 label-width="100%"
                 :custom-style="{
                     '--td-font-size-m': '24rpx',
+                    '--td-button-medium-font-size': '28rpx',
                 }"
             >
                 <t-form-item

@@ -82,12 +82,15 @@ const menuItems = [
 
         <!-- 用户信息区：渐变背景 + 头像 + 昵称 -->
         <view class="user-card flex flex-col items-center justify-center px-6 py-8">
-            <t-image
+            <!-- <t-image
                 :src="avatarUrl"
                 width="72"
                 height="72"
                 shape="circle"
-            />
+            /> -->
+            <t-avatar size="large" t-class-content="external-class-content">
+                {{ displayName.charAt(0) }}
+            </t-avatar>
             <text class="mt-4 text-lg text-gray-900">{{ displayName || t('profile.nicknamePlaceholder') }}</text>
         </view>
 
@@ -129,5 +132,10 @@ const menuItems = [
 <style lang="scss" scoped>
 .bg-gradient-user {
     background: linear-gradient(135deg, #e0f2ff 0%, #fef3e0 100%);
+}
+
+:deep(.external-class-content) {
+    background-color: var(--td-brand-color);
+    color: var(--td-font-white-1);
 }
 </style>

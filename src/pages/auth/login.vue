@@ -60,13 +60,16 @@ function handleRefreshCaptcha() {
 
 async function handleSubmit(e: any) {
     form.value.validate().then(async (valid) => {
-        console.log('🚀 ~ handleSubmit ~ valid:', valid)
         if (valid !== true) {
             return
         }
         loading.value = true
         try {
-            const res = await tokenStore.login(formData)
+            await tokenStore.login({
+                ...formData,
+                username: formData.username.trim(),
+                password: formData.password.trim(),
+            })
             uni.switchTab({
                 url: '/pages/index/index',
             })

@@ -50,7 +50,6 @@ onShow(() => {
 <template>
     <view v-if="customTabbarEnable">
         <t-tab-bar
-            t-class="t-tab-bar"
             :value="`${tabbarStore.curIdx}`"
             shape="round"
             theme="tag"

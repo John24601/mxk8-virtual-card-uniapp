@@ -236,6 +236,7 @@ export interface ICardCreateReq {
     firstName: string
     lastName: string
     billingAddress: string
+    addressNotes?: string
     amount: number
     expiryDate?: string
     email?: string

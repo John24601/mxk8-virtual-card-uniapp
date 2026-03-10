@@ -346,7 +346,6 @@ onLoad((options) => {
             ref="t-action-sheet"
             v-model:visible="moreOptionsVisible"
             :items="moreOptions"
-            :custom-style="{ '--td-action-sheet-border-radius': '4rpx' }"
             align="left"
             :description="t('pages.cards.moreActions')"
             :cancel-text="t('common.cancel')"

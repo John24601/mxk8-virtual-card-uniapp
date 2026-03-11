@@ -22,7 +22,8 @@ systemInfo = uni.getSystemInfoSync()
 safeAreaInsets = systemInfo.safeAreaInsets
 // #endif
 
-console.log('systemInfo', systemInfo)
+console.log('systemInfo >>>', systemInfo)
+console.log('safeAreaInsets >>>', safeAreaInsets)
 // 微信里面打印
 // pixelRatio: 3
 // safeArea: {top: 47, left: 0, right: 390, bottom: 810, width: 390, …}

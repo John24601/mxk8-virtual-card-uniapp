@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { ICardCreateReq, ICardPermissionRecord } from '@/api/types/cards'
+import { isH5 } from '@uni-helper/uni-env'
+import currency from 'currency.js'
 import { getCardPermissions } from '@/api/pay/cards'
 import { t } from '@/locale'
 
@@ -84,6 +86,7 @@ const cardBinVisible = ref(false)
 const expiryDateVisible = ref(false)
 const birthDateVisible = ref(false)
 const statePickerVisible = ref(false)
+const infoDialogVisible = ref(false)
 const cardBins = ref<ICardPermissionRecord[]>([])
 const loading = ref(false)
 const amountError = ref(false)
@@ -155,6 +158,14 @@ const monthOptions = computed(() => {
     }))
 })
 
+const currentCardFee = computed(() => {
+    return currency(currentSelectedCardFees.value?.[formData.expiryDate] ?? 0).format()
+})
+
+const currentOverseasTransactionFee = computed(() => {
+    return currentSelectedCardBin.value?.foreignTransactionFeeEquation ?? '2%+$0.3'
+})
+
 async function getCardBins() {
     const data = await getCardPermissions()
     cardBins.value = data
@@ -207,6 +218,10 @@ function showStatePicker() {
     uni.hideKeyboard()
 }
 
+function closeInfoDialog() {
+    infoDialogVisible.value = false
+}
+
 async function handleSubmit() {
     console.log('formData', formData)
 }
@@ -226,11 +241,10 @@ function filter(type: string, options: any[]) {
     return options
 }
 
-let isWeb = false
-
-// #ifdef WEB
-isWeb = true
-// #endif
+function onInfoCircleClick() {
+    console.log('onInfoCircleClick')
+    infoDialogVisible.value = true
+}
 
 onLoad(() => {
     getCardBins()
@@ -238,25 +252,36 @@ onLoad(() => {
 </script>
 
 <template>
-    <view class="min-h-screen bg-gray-100 pb-safe">
-        <view class="p-2">
-            <t-radio-group :value="0">
-                <view class="card card--active">
-                    <t-icon
-                        name="check"
-                        t-class="card__icon"
-                        class="card__icon"
-                    />
+    <page-meta page-style="overflow: hidden" />
 
-                    <t-radio
-                        :value="0"
-                        label="Virtual Card"
-                        :icon="('none' as any)"
-                        borderless
-                    />
-                </view>
-            </t-radio-group>
+    <z-paging
+        paging-class="bg-gray-100"
+        :refresher-enabled="false"
+        :loading-more-enabled="false"
+        safe-area-inset-bottom
+    >
+        <template #top>
+            <view class="p-2">
+                <t-radio-group :value="0">
+                    <view class="card card--active">
+                        <t-icon
+                            name="check"
+                            t-class="card__icon"
+                            class="card__icon"
+                        />
 
+                        <t-radio
+                            :value="0"
+                            label="Virtual Card"
+                            :icon="('none' as any)"
+                            borderless
+                        />
+                    </view>
+                </t-radio-group>
+            </view>
+        </template>
+
+        <view class="px-2 pb-2">
             <t-form
                 ref="formRef"
                 :model="formData"
@@ -281,21 +306,9 @@ onLoad(() => {
                             borderless
                             :placeholder="t('cards.selectCardBin')"
                             style="flex: 1;"
-                            :readonly="!isWeb"
+                            :readonly="!isH5"
                             @click="showCardBinPicker"
                         />
-
-                        <t-picker
-                            v-model:visible="cardBinVisible"
-                            :value="[formData.cardBin]"
-                            data-key="cardBin"
-                            :title="t('cards.selectCardBin')"
-                            :cancel-btn="t('common.cancel')"
-                            :confirm-btn="t('common.confirm')"
-                            @change="onCardBinPickerChange"
-                        >
-                            <t-picker-item :options="cardBinOptions" />
-                        </t-picker>
                     </t-form-item>
 
                     <view class="grid grid-cols-2 gap-4">
@@ -335,21 +348,9 @@ onLoad(() => {
                                 borderless
                                 :placeholder="t('cards.selectExpiryDate')"
                                 style="flex: 1;"
-                                :readonly="!isWeb"
+                                :readonly="!isH5"
                                 @click="showExpiryDatePicker"
                             />
-
-                            <t-picker
-                                v-model:visible="expiryDateVisible"
-                                :value="[formData.expiryDate]"
-                                data-key="expiryDate"
-                                :title="t('cards.selectExpiryDate')"
-                                :cancel-btn="t('common.cancel')"
-                                :confirm-btn="t('common.confirm')"
-                                @change="onExpiryDatePickerChange"
-                            >
-                                <t-picker-item :options="monthOptions" />
-                            </t-picker>
                         </t-form-item>
                     </view>
 
@@ -378,23 +379,8 @@ onLoad(() => {
                             :placeholder="t('cards.selectBirthDate')"
                             suffix-icon="calendar"
                             style="flex: 1;"
-                            :readonly="!isWeb"
+                            :readonly="!isH5"
                             @click="showBirthDatePicker"
-                        />
-
-                        <t-date-time-picker
-                            v-model:visible="birthDateVisible"
-                            v-model:value="formData.birthDate"
-                            data-key="birthDate"
-                            auto-close
-                            :title="t('cards.selectBirthDate')"
-                            :confirm-btn="t('common.confirm')"
-                            :cancel-btn="t('common.cancel')"
-                            mode="date"
-                            format="YYYY-MM-DD"
-                            custom-locale="en"
-                            :filter="filter"
-                            @change="onBirthDatePickerChange"
                         />
                     </t-form-item>
                 </view>
@@ -434,26 +420,9 @@ onLoad(() => {
                                 :placeholder="t('cards.selectState')"
                                 borderless
                                 style="flex: 1;"
-                                :readonly="!isWeb"
+                                :readonly="!isH5"
                                 @click="showStatePicker"
                             />
-
-                            <t-picker
-                                v-model:visible="statePickerVisible"
-                                :value="[formData.state]"
-                                data-key="state"
-                                :title="t('cards.selectState')"
-                                :cancel-btn="t('common.cancel')"
-                                :confirm-btn="t('common.confirm')"
-                                @change="onStatePickerChange"
-                            >
-                                <t-picker-item
-                                    :options="stateOptions.map((state) => ({
-                                        label: state,
-                                        value: state,
-                                    }))"
-                                />
-                            </t-picker>
                         </t-form-item>
                     </view>
 
@@ -466,18 +435,17 @@ onLoad(() => {
                     </t-form-item>
                 </view>
 
-                <view class="mt-2 bg-white">
-                    <t-checkbox-group
-                        :default-value="['1', '2']"
-                    >
+                <view class="mt-2 bg-white pr-4">
+                    <t-checkbox-group :default-value="['1', '2']">
                         <t-checkbox
                             icon="rectangle"
+                            :max-label-row="5"
                             default-checked
                             relation-key="-1"
                         >
                             <template #label>
                                 <text>
-                                    我同意创建卡的费用是$0.00。成功创建卡后，费用将从我的账户余额中扣除。
+                                    {{ t('cards.agreementCreateCardFee', { amount: currentCardFee }) }}
                                 </text>
                             </template>
                         </t-checkbox>
@@ -487,34 +455,158 @@ onLoad(() => {
                             relation-key="-1"
                         >
                             <template #label>
-                                <text>
-                                    我已阅读并同意 费用表
-                                </text>
+                                <view class="flex items-center">
+                                    <text>{{ t('cards.readAndAgree') }}</text>
+                                    <t-link
+                                        class="ml-2"
+                                        t-class-content="font-bold!"
+                                        theme="primary"
+                                        :content="t('cards.feeTable')"
+                                        hover
+                                        underline
+                                    />
+                                </view>
                             </template>
                         </t-checkbox>
                     </t-checkbox-group>
                 </view>
 
-                <view class="mt-2">
-                    <t-button
-                        theme="primary"
-                        size="large"
-                        block
-                        :loading="loading"
-                        @click="handleSubmit"
-                    >
-                        {{ t('cards.createPageTitle') }}
-                    </t-button>
+                <view class="mt-2 bg-white px-4 py-4">
+                    <view>
+                        <view>
+                            <text class="font-bold">{{ t('cards.tips') }}</text>
+                        </view>
+                        <t-divider />
+                        <view class="leading-relaxed">
+                            <view class="flex">
+                                <text class="w-5">1.</text>
+                                <text>{{ t('cards.createCardFee', { amount: currentCardFee }) }}</text>
+                            </view>
+                            <view class="mt-2 flex">
+                                <text class="w-5">2.</text>
+                                <text class="flex-1">{{ t('cards.deleteCardRule') }}</text>
+                            </view>
+                            <view class="mt-2 flex">
+                                <text class="w-5">3.</text>
+                                <view class="inline flex-1">
+                                    <text>
+                                        {{ t('cards.overseasTransactionFee', { amount: currentOverseasTransactionFee }) }}
+                                    </text>
+                                    <t-icon
+                                        name="info-circle"
+                                        size="36rpx"
+                                        class="mb-0.5 ml-2 inline-block align-middle"
+                                        @click="onInfoCircleClick"
+                                    />
+                                </view>
+                            </view>
+                        </view>
+                    </view>
                 </view>
             </t-form>
         </view>
-    </view>
+
+        <template #bottom>
+            <view class="p-2">
+                <t-button
+                    theme="primary"
+                    size="large"
+                    icon="creditcard"
+                    block
+                    :loading="loading"
+                    @click="handleSubmit"
+                >
+                    {{ t('cards.createPageTitle') }}
+                </t-button>
+            </view>
+        </template>
+    </z-paging>
+
+    <t-picker
+        v-model:visible="cardBinVisible"
+        :value="[formData.cardBin]"
+        data-key="cardBin"
+        :title="t('cards.selectCardBin')"
+        :cancel-btn="t('common.cancel')"
+        :confirm-btn="t('common.confirm')"
+        @change="onCardBinPickerChange"
+    >
+        <t-picker-item :options="cardBinOptions" />
+    </t-picker>
+
+    <t-picker
+        v-model:visible="expiryDateVisible"
+        :value="[formData.expiryDate]"
+        data-key="expiryDate"
+        :title="t('cards.selectExpiryDate')"
+        :cancel-btn="t('common.cancel')"
+        :confirm-btn="t('common.confirm')"
+        @change="onExpiryDatePickerChange"
+    >
+        <t-picker-item :options="monthOptions" />
+    </t-picker>
+
+    <t-date-time-picker
+        v-model:visible="birthDateVisible"
+        v-model:value="formData.birthDate"
+        data-key="birthDate"
+        auto-close
+        :title="t('cards.selectBirthDate')"
+        :confirm-btn="t('common.confirm')"
+        :cancel-btn="t('common.cancel')"
+        mode="date"
+        format="YYYY-MM-DD"
+        custom-locale="en"
+        :filter="filter"
+        @change="onBirthDatePickerChange"
+    />
+
+    <t-picker
+        v-model:visible="statePickerVisible"
+        :value="[formData.state]"
+        data-key="state"
+        :title="t('cards.selectState')"
+        :cancel-btn="t('common.cancel')"
+        :confirm-btn="t('common.confirm')"
+        @change="onStatePickerChange"
+    >
+        <t-picker-item
+            :options="stateOptions.map((state) => ({
+                label: state,
+                value: state,
+            }))"
+        />
+    </t-picker>
+
+    <t-dialog
+        :visible="infoDialogVisible"
+        :title="t('common.tips')"
+        @confirm="closeInfoDialog"
+    >
+        <template #content>
+            <!-- 适配skyline，增加type="list" -->
+            <scroll-view
+                type="list"
+                scroll-y
+                class="long-content"
+            >
+                <view class="content-container">
+                    这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案 这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案
+                    这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案 这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案
+                </view>
+            </scroll-view>
+        </template>
+        <template #confirm-btn>
+            <t-button theme="primary" size="large" block @click="closeInfoDialog">
+                {{ t('common.gotIt') }}
+            </t-button>
+        </template>
+    </t-dialog>
 </template>
 
 <style lang="scss" scoped>
 .card {
     position: relative;
-    margin-bottom: 16rpx;
     border-radius: 4rpx;
     overflow: hidden;
     box-sizing: border-box;
@@ -556,5 +648,28 @@ onLoad(() => {
 
 :deep(.t-form-item__label--required) {
     margin-left: 4rpx;
+}
+</style>
+
+<style>
+.long-content {
+    height: 576rpx;
+    margin-top: 16rpx;
+    font-size: 32rpx;
+    color: #888;
+}
+
+.long-content .content-container {
+    white-space: pre-line;
+}
+
+.long-content ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.t-dialog__footer--full {
+    padding: 0 !important;
 }
 </style>

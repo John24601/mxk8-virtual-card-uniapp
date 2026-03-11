@@ -94,6 +94,7 @@ function onPasswordVisibleClick() {
 
 <template>
     <page-meta page-style="overflow: hidden" />
+
     <view class="box-border min-h-100vh pt-safe pb-safe">
         <view class="flex flex-col items-center pb-8 pt-12">
             <!-- <view class="h-20 w-20 center rounded-2xl from-[#0052D9] to-[#0034B5] bg-gradient-to-br shadow-lg">

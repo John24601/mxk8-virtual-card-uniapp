@@ -127,6 +127,7 @@ export function http<T>(options: CustomRequestOptions) {
                     icon: 'none',
                     title: (res.data as any).msg || '请求错误',
                 })
+                uni.$emit('z-paging-error-emit')
                 reject(res)
             },
             // 响应失败

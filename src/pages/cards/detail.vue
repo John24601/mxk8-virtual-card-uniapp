@@ -2,6 +2,7 @@
 import type { ICardDetailRes, ICardTransactionRecord } from '@/api/types/cards'
 import { changeCardStatus, getCardByToken, getCardTransactionActivity } from '@/api/pay/cards'
 import { t } from '@/locale'
+import { systemInfo } from '@/utils/systemInfo'
 
 defineOptions({
     name: 'CardDetail',
@@ -15,9 +16,6 @@ definePage({
 const cardToken = ref('')
 const cardDetail = ref<ICardDetailRes | null>(null)
 const txList = ref<ICardTransactionRecord[]>([])
-const txTotal = ref(0)
-const loading = ref(false)
-const txLoading = ref(false)
 const changingStatus = ref(false)
 const moreOptionsVisible = ref(false)
 function formatMoney(value: number | string): string {
@@ -62,41 +60,10 @@ function formatExpireDate(expireDate: string | null): string {
     return s
 }
 
-async function fetchDetail() {
-    if (!cardToken.value)
-        return
-    loading.value = true
-    try {
-        cardDetail.value = await getCardByToken(cardToken.value)
-    }
-    catch {
-        uni.showToast({ title: '加载失败', icon: 'none' })
-        setTimeout(() => uni.navigateBack(), 1500)
-    }
-    finally {
-        loading.value = false
-    }
-}
-
-async function fetchTxList() {
-    if (!cardToken.value)
-        return
-    txLoading.value = true
-    try {
-        const res = await getCardTransactionActivity({
-            cardToken: cardToken.value,
-            current: 1,
-            pageSize: 10,
-        })
-        txList.value = res?.records ?? []
-        txTotal.value = res?.total ?? 0
-    }
-    catch {
-        txList.value = []
-    }
-    finally {
-        txLoading.value = false
-    }
+function fetchDetail() {
+    getCardByToken(cardToken.value).then((info) => {
+        cardDetail.value = info
+    })
 }
 
 function onViewFullNumber() {
@@ -198,6 +165,20 @@ const moreOptions = computed(() => [
     },
 ])
 
+const pagingRef = ref(null)
+
+function onQuery() {
+    fetchDetail()
+
+    getCardTransactionActivity({
+        cardToken: cardToken.value,
+        current: 1,
+        pageSize: 10,
+    }).then(({ records, total }) => {
+        pagingRef.value?.completeByTotal(records, total)
+    })
+}
+
 onLoad((options) => {
     const token = options?.cardToken ?? ''
     if (!token) {
@@ -206,18 +187,31 @@ onLoad((options) => {
         return
     }
     cardToken.value = token
-    fetchDetail()
-    fetchTxList()
 })
 </script>
 
 <template>
     <page-meta page-style="overflow: hidden" />
-    <view class="detail-page box-border h-100vh flex flex-col overflow-hidden bg-gray-50 pb-8 pb-safe">
-        <view class="relative flex-1">
-            <template v-if="cardDetail">
+
+    <z-paging
+        ref="pagingRef"
+        v-model="txList"
+        paging-class="bg-gray-50"
+        safe-area-inset-bottom
+        :loading-more-enabled="false"
+        @query="onQuery"
+    >
+        <view class="overflow-hidden">
+            <t-skeleton
+                theme="image"
+                animation="gradient"
+                :loading="!cardDetail"
+                t-class="mx-4 mt-4"
+                :row-col="[{ width: '100%', height: '380rpx', type: 'rect' }]"
+                :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
+            >
                 <!-- 卡片信息块：与列表页同结构同样式 -->
-                <view class="card-block mx-4 mt-4 overflow-hidden rounded-2xl">
+                <view v-if="cardDetail" class="card-block mx-4 mt-4 overflow-hidden rounded-2xl">
                     <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
                         <view class="flex items-center justify-between">
                             <view class="flex items-center gap-2">
@@ -258,101 +252,93 @@ onLoad((options) => {
                         </view>
                     </view>
                 </view>
+            </t-skeleton>
 
-                <!-- 该卡交易记录 -->
-                <view class="mx-4 mt-4 rounded-sm bg-white py-4">
-                    <view class="flex items-center justify-between px-4 pb-2">
-                        <text class="text-base text-gray-900 font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
-                        <text
-                            class="text-sm text-primary"
-                            @click="goViewAllTx"
-                        >
-                            {{ t('pages.cards.viewAll') }}
-                        </text>
-                    </view>
+            <!-- 该卡交易记录 -->
+            <view class="mx-4 mt-4 rounded-sm bg-white py-4">
+                <view class="flex items-center justify-between px-4 pb-2">
+                    <text class="text-base text-gray-900 font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
+                    <text
+                        class="text-sm text-primary"
+                        @click="goViewAllTx"
+                    >
+                        {{ t('pages.cards.viewAll') }}
+                    </text>
+                </view>
 
-                    <t-divider />
+                <t-divider />
 
-                    <view v-if="txLoading" class="py-8 text-center text-gray-500">
-                        加载中...
-                    </view>
-                    <view v-else-if="txList.length === 0" class="py-8 text-center text-gray-500">
-                        暂无交易记录
-                    </view>
-                    <view v-else class="flex flex-col">
+                <view class="flex flex-col">
+                    <view
+                        v-for="(tx, index) in txList"
+                        :key="tx.id"
+                        class="px-4"
+                    >
                         <view
-                            v-for="(tx, index) in txList"
-                            :key="tx.id"
-                            class="px-4"
+                            class="flex items-center justify-between py-3"
                         >
-                            <view
-                                class="flex items-center justify-between py-3"
-                            >
-                                <view class="min-w-0 flex-1">
-                                    <text class="block text-sm text-gray-900 font-medium">{{ txTypeLabel(tx) }} · {{ tx.merchantName || '—' }}</text>
-                                    <text class="mt-1 block text-xs text-gray-500">{{ tx.transactionTime }}</text>
-                                </view>
-                                <view class="flex flex-col items-end">
-                                    <text
-                                        class="text-sm font-medium"
-                                        :class="formatTxAmount(tx).startsWith('+') ? 'text-green-600' : 'text-gray-900'"
-                                    >
-                                        {{ formatTxAmount(tx) }}
-                                    </text>
-                                    <text
-                                        class="mt-1 text-xs"
-                                        :class="isTxSuccess(tx) ? 'text-green-600' : 'text-gray-500'"
-                                    >
-                                        {{ isTxSuccess(tx) ? t('home.statusSuccess') : t('home.statusFailed') }}
-                                    </text>
-                                </view>
+                            <view class="min-w-0 flex-1">
+                                <text class="block text-sm text-gray-900 font-medium">{{ txTypeLabel(tx) }} · {{ tx.merchantName || '—' }}</text>
+                                <text class="mt-1 block text-xs text-gray-500">{{ tx.transactionTime }}</text>
                             </view>
-
-                            <t-divider v-if="index !== txList.length - 1" />
+                            <view class="flex flex-col items-end">
+                                <text
+                                    class="text-sm font-medium"
+                                    :class="formatTxAmount(tx).startsWith('+') ? 'text-green-600' : 'text-gray-900'"
+                                >
+                                    {{ formatTxAmount(tx) }}
+                                </text>
+                                <text
+                                    class="mt-1 text-xs"
+                                    :class="isTxSuccess(tx) ? 'text-green-600' : 'text-gray-500'"
+                                >
+                                    {{ isTxSuccess(tx) ? t('home.statusSuccess') : t('home.statusFailed') }}
+                                </text>
+                            </view>
                         </view>
+
+                        <t-divider v-if="index !== txList.length - 1" />
                     </view>
                 </view>
-            </template>
-            <view v-else-if="loading" class="min-h-60 flex items-center justify-center text-gray-500">
-                加载中...
             </view>
         </view>
 
-        <!-- 操作区 -->
-        <view class="grid grid-cols-3 mx-4 gap-3 pb-4">
-            <view class="col-span-2">
-                <t-button
-                    theme="primary"
-                    block
-                    icon="wallet"
-                    @click="onTopUp"
-                >
-                    {{ t('pages.cards.topUp') }}
-                </t-button>
+        <template #bottom>
+            <view class="grid grid-cols-3 mx-4 gap-3" :class="systemInfo.safeAreaInsets.bottom === 0 && 'pb-4'">
+                <view class="col-span-2">
+                    <t-button
+                        theme="primary"
+                        block
+                        icon="wallet"
+                        @click="onTopUp"
+                    >
+                        {{ t('pages.cards.topUp') }}
+                    </t-button>
+                </view>
+                <view>
+                    <t-button
+                        variant="outline"
+                        block
+                        icon="more"
+                        @click="onMoreOptions"
+                    >
+                        More
+                    </t-button>
+                </view>
             </view>
-            <view>
-                <t-button
-                    variant="outline"
-                    block
-                    icon="more"
-                    @click="onMoreOptions"
-                >
-                    More
-                </t-button>
-            </view>
-        </view>
+        </template>
+    </z-paging>
 
-        <t-action-sheet
-            ref="t-action-sheet"
-            v-model:visible="moreOptionsVisible"
-            :items="moreOptions"
-            align="left"
-            :description="t('pages.cards.moreActions')"
-            :cancel-text="t('common.cancel')"
-            @selected="handleSelected"
-            @cancel="onCancel"
-        />
-    </view>
+    <t-action-sheet
+        ref="t-action-sheet"
+        v-model:visible="moreOptionsVisible"
+        :items="moreOptions"
+        align="left"
+        :description="t('pages.cards.moreActions')"
+        :cancel-text="t('common.cancel')"
+        @selected="handleSelected"
+        @cancel="onCancel"
+    />
 </template>
 
 <style lang="scss" scoped>

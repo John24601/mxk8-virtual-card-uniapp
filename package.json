@@ -136,6 +136,7 @@
         "abortcontroller-polyfill": "^1.7.8",
         "alova": "^3.3.3",
         "crypto-js": "^4.2.0",
+        "currency.js": "^2.0.4",
         "dayjs": "1.11.10",
         "echarts": "^5.4.1",
         "lodash-es": "^4.17.21",

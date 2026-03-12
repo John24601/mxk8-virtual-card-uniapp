@@ -14,15 +14,14 @@ definePage({
     },
 })
 
-const userStore = useUserStore()
-const tokenStore = useTokenStore()
-
 const avatarUrl = computed(() => {
+    const userStore = useUserStore()
     const url = userStore.userInfo?.avatar
     return url || '/static/images/default-avatar.png'
 })
 
 const displayName = computed(() => {
+    const userStore = useUserStore()
     const u = userStore.userInfo
     if (!u)
         return ''
@@ -57,6 +56,7 @@ async function handleLogout() {
         return
     logoutLoading.value = true
     try {
+        const tokenStore = useTokenStore()
         await tokenStore.logout()
         toLoginPage({ mode: 'reLaunch' })
     }

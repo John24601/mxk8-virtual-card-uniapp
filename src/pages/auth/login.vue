@@ -15,9 +15,7 @@ definePage({
     },
 })
 
-const tokenStore = useTokenStore()
-
-const form = ref(null)
+const formRef = ref(null)
 
 // const captchaCode = ref('')
 const formData = reactive<ILoginForm>({
@@ -59,12 +57,13 @@ function handleRefreshCaptcha() {
 }
 
 async function handleSubmit(e: any) {
-    form.value.validate().then(async (valid) => {
+    formRef.value.validate().then(async (valid) => {
         if (valid !== true) {
             return
         }
         loading.value = true
         try {
+            const tokenStore = useTokenStore()
             await tokenStore.login({
                 ...formData,
                 username: formData.username.trim(),
@@ -106,7 +105,7 @@ function onPasswordVisibleClick() {
 
         <view class="px-6">
             <t-form
-                ref="form"
+                ref="formRef"
                 :data="formData"
                 :rules="rules"
                 show-error-message

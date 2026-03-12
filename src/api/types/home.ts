@@ -65,7 +65,7 @@ export interface IBillRecord {
     isShow: boolean
     isShowTransactionFee: boolean
     transactionFee: number
-    userEntityType: string | null
+    userEntityType: number
     /** 展示用金额，如 "20.0" */
     showAmount: string
     amountTip: string | null

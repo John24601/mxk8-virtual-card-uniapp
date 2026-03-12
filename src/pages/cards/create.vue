@@ -2,7 +2,7 @@
 import type { ICardCreateReq, ICardPermissionRecord } from '@/api/types/cards'
 import { isH5 } from '@uni-helper/uni-env'
 import currency from 'currency.js'
-import { getCardPermissions } from '@/api/pay/cards'
+import { cardCreate, getCardPermissions } from '@/api/pay/cards'
 import { t } from '@/locale'
 
 defineOptions({
@@ -13,20 +13,20 @@ definePage({
         navigationBarTitleText: '%cards.createPageTitle%',
     },
 })
-const calendarMonth = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-]
+// const calendarMonth = [
+//     'January',
+//     'February',
+//     'March',
+//     'April',
+//     'May',
+//     'June',
+//     'July',
+//     'August',
+//     'September',
+//     'October',
+//     'November',
+//     'December',
+// ]
 const stateOptions = [
     'AL',
     'AK',
@@ -81,6 +81,7 @@ const stateOptions = [
     'WY',
 ]
 
+const pagingRef = ref<ZPagingRef>(null)
 const formRef = ref<any>(null)
 const cardBinVisible = ref(false)
 const expiryDateVisible = ref(false)
@@ -91,6 +92,7 @@ const cardBins = ref<ICardPermissionRecord[]>([])
 const loading = ref(false)
 const amountError = ref(false)
 const isTrialCard = ref(false)
+const agreementValue = ref<string[]>([])
 const formData = reactive<ICardCreateReq>({
     cardBin: '',
     cardType: 'Virtual Card',
@@ -98,6 +100,7 @@ const formData = reactive<ICardCreateReq>({
     lastName: '',
     billingAddress: '',
     amount: 0,
+    expiryDate: '',
     city: '',
     state: '',
     zipCode: '',
@@ -117,6 +120,9 @@ const rules = reactive({
     ],
     amount: [
         { required: true, message: t('cards.amountRequired') },
+    ],
+    expiryDate: [
+        { required: true, message: t('cards.expiryDateRequired') },
     ],
     city: [
         { required: true, message: t('cards.cityRequired') },
@@ -224,6 +230,42 @@ function closeInfoDialog() {
 
 async function handleSubmit() {
     console.log('formData', formData)
+    formRef.value.validate().then(async (result) => {
+        console.log('🚀 ~ handleSubmit ~ agreementValue.value:', agreementValue.value)
+        if (result !== true) {
+            return
+        }
+        if (agreementValue.value.length !== 2) {
+            uni.showToast({
+                title: t('cards.agreementRequired'),
+                icon: 'none',
+            })
+            return
+        }
+        loading.value = true
+        try {
+            await cardCreate(formData)
+            uni.showToast({
+                title: t('cards.createSuccess'),
+                icon: 'success',
+            })
+            setTimeout(() => {
+                uni.switchTab({
+                    url: '/pages/cards/index',
+                })
+            }, 1500)
+        }
+        catch (error) {
+            console.error('🚀 ~ handleSubmit ~ error:', error)
+            uni.showToast({
+                title: t('common.operateFailed'),
+                icon: 'none',
+            })
+        }
+        finally {
+            loading.value = false
+        }
+    })
 }
 
 function priceFormat(v: string) {
@@ -255,7 +297,8 @@ onLoad(() => {
     <page-meta page-style="overflow: hidden" />
 
     <z-paging
-        paging-class="bg-gray-100"
+        ref="pagingRef"
+        paging-class="bg-gray-50"
         :refresher-enabled="false"
         :loading-more-enabled="false"
         safe-area-inset-bottom
@@ -300,6 +343,7 @@ onLoad(() => {
                     <view class="text-sm text-gray-500">
                         {{ t('cards.basicInfo') }}
                     </view>
+
                     <t-form-item arrow :label="t('cards.cardBin')" name="cardBin">
                         <t-input
                             :value="formData.cardBin"
@@ -436,12 +480,11 @@ onLoad(() => {
                 </view>
 
                 <view class="mt-2 bg-white pr-4">
-                    <t-checkbox-group :default-value="['1', '2']">
+                    <t-checkbox-group v-model:value="agreementValue">
                         <t-checkbox
                             icon="rectangle"
                             :max-label-row="5"
-                            default-checked
-                            relation-key="-1"
+                            value="1"
                         >
                             <template #label>
                                 <text>
@@ -451,17 +494,17 @@ onLoad(() => {
                         </t-checkbox>
                         <t-checkbox
                             icon="rectangle"
-                            default-checked
-                            relation-key="-1"
+                            value="2"
                         >
                             <template #label>
-                                <view class="flex items-center">
-                                    <text>{{ t('cards.readAndAgree') }}</text>
+                                <view class="inline">
+                                    <text class="mr-2">{{ t('cards.readAndAgree') }}</text>
                                     <t-link
-                                        class="ml-2"
+                                        class="inline-block"
                                         t-class-content="font-bold!"
                                         theme="primary"
-                                        :content="t('cards.feeTable')"
+                                        :content="t('cards.feeSchedule')"
+                                        :navigator-props="{ url: '/pages/fee/index' }"
                                         hover
                                         underline
                                     />
@@ -473,32 +516,37 @@ onLoad(() => {
 
                 <view class="mt-2 bg-white px-4 py-4">
                     <view>
-                        <view>
-                            <text class="font-bold">{{ t('cards.tips') }}</text>
+                        <text class="font-bold">{{ t('common.tips') }}{{ t('common.colon') }}</text>
+                    </view>
+                    <t-divider />
+                    <view class="leading-relaxed">
+                        <view class="flex">
+                            <text class="w-5">1.</text>
+                            <text>
+                                <text class="font-bold">{{ t('cards.cardCreationFeeTitle') }}{{ t('common.colon') }}</text>
+                                {{ t('cards.cardCreationFee', { amount: currentCardFee }) }}
+                            </text>
                         </view>
-                        <t-divider />
-                        <view class="leading-relaxed">
-                            <view class="flex">
-                                <text class="w-5">1.</text>
-                                <text>{{ t('cards.createCardFee', { amount: currentCardFee }) }}</text>
-                            </view>
-                            <view class="mt-2 flex">
-                                <text class="w-5">2.</text>
-                                <text class="flex-1">{{ t('cards.deleteCardRule') }}</text>
-                            </view>
-                            <view class="mt-2 flex">
-                                <text class="w-5">3.</text>
-                                <view class="inline flex-1">
-                                    <text>
-                                        {{ t('cards.overseasTransactionFee', { amount: currentOverseasTransactionFee }) }}
-                                    </text>
-                                    <t-icon
-                                        name="info-circle"
-                                        size="36rpx"
-                                        class="mb-0.5 ml-2 inline-block align-middle"
-                                        @click="onInfoCircleClick"
-                                    />
-                                </view>
+                        <view class="mt-2 flex">
+                            <text class="w-5">2.</text>
+                            <text class="flex-1">
+                                <text class="font-bold">{{ t('cards.cardDeletionRuleTitle') }}{{ t('common.colon') }}</text>
+                                {{ t('cards.cardDeletionRule') }}
+                            </text>
+                        </view>
+                        <view class="mt-2 flex">
+                            <text class="w-5">3.</text>
+                            <view class="inline flex-1">
+                                <text>
+                                    <text class="font-bold">{{ t('cards.foreignTransactionFeeTitle') }}{{ t('common.colon') }}</text>
+                                    {{ t('cards.foreignTransactionFee', { amount: currentOverseasTransactionFee }) }}
+                                </text>
+                                <t-icon
+                                    name="info-circle"
+                                    size="36rpx"
+                                    class="mb-0.5 ml-2 inline-block align-middle"
+                                    @click="onInfoCircleClick"
+                                />
                             </view>
                         </view>
                     </view>
@@ -580,7 +628,7 @@ onLoad(() => {
 
     <t-dialog
         :visible="infoDialogVisible"
-        :title="t('common.tips')"
+        :title="t('cards.foreignTransactionFeeTitle')"
         @confirm="closeInfoDialog"
     >
         <template #content>
@@ -590,9 +638,12 @@ onLoad(() => {
                 scroll-y
                 class="long-content"
             >
-                <view class="content-container">
-                    这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案 这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案
-                    这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案 这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案，这里是辅助内容文案
+                <view class="flex flex-col whitespace-pre-line">
+                    <text class="mb-2">{{ t('cards.foreignTransactionFeeExplanationTitle') }}</text>
+                    <text>{{ t('cards.foreignTransactionFeeExplanationContent1') }}</text>
+                    <text class="mt-1">{{ t('cards.foreignTransactionFeeExplanationContent2') }}</text>
+                    <text class="mt-1">{{ t('cards.foreignTransactionFeeExplanationContent3') }}</text>
+                    <text class="mt-2">{{ t('cards.foreignTransactionFeeExplanationSummary') }}</text>
                 </view>
             </scroll-view>
         </template>
@@ -639,11 +690,23 @@ onLoad(() => {
 }
 
 :deep(.t-form-item) {
-    padding-bottom: 20rpx !important;
+    padding-bottom: 8rpx !important;
 }
 
-:deep(.t-form-item__controls) {
+:deep(.t-form-item--bordered) {
+    border: none !important;
+}
+
+:deep(.t-form-item__controls-content) {
+    box-sizing: border-box;
     margin-top: 10rpx;
+    background-color: var(--td-brand-color-1);
+    border-radius: 4rpx;
+    padding: 20rpx 20rpx 20rpx 24rpx;
+}
+
+:deep(.t-input__wrap) {
+    background-color: var(--td-brand-color-1);
 }
 
 :deep(.t-form-item__label--required) {
@@ -659,17 +722,9 @@ onLoad(() => {
     color: #888;
 }
 
-.long-content .content-container {
-    white-space: pre-line;
-}
-
 .long-content ::-webkit-scrollbar {
     display: none;
     width: 0;
     height: 0;
-}
-
-.t-dialog__footer--full {
-    padding: 0 !important;
 }
 </style>

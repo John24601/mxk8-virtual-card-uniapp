@@ -72,7 +72,7 @@ export interface ICardRecord {
     canAddFunds: boolean
     canDeductFunds: boolean
     canDisabled: boolean
-    userEntityType: string | null
+    userEntityType: number
     usableAmount: number | null
     secondPassword: string | null
     isTrialCard: boolean
@@ -203,7 +203,7 @@ export interface ICardTransactionRecord {
     isShow: boolean | null
     isShowTransactionFee: boolean | null
     transactionFee: number
-    userEntityType: string | null
+    userEntityType: number
     showAmount: string | null
     amountTip: string | null
     currencyCode: string
@@ -238,7 +238,7 @@ export interface ICardCreateReq {
     billingAddress: string
     addressNotes?: string
     amount: number
-    expiryDate?: string
+    expiryDate: string
     email?: string
     phone?: string
     city: string

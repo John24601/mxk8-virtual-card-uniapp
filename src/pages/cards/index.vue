@@ -12,7 +12,7 @@ definePage({
     },
 })
 
-const list = ref<ICardRecord[]>([])
+const userCards = ref<ICardRecord[]>([])
 const cardAll = ref<ICardAllSummary | null>(null)
 const pagingRef = ref<ZPagingRef<ICardRecord>>()
 const changingId = ref<string | null>(null)
@@ -54,17 +54,19 @@ function cardTypeLabel(card: ICardRecord): string {
     return 'Card'
 }
 
+const loading = ref(true)
 /** z-paging 分页请求：pageNo 从 1 开始，与后端 current 一致 */
 async function onQuery(pageNo: number, pageSize: number) {
+    loading.value = true
     try {
         const { cardAll, list } = await getCardList({ current: pageNo, pageSize })
         cardAll.value = cardAll ?? null
         const records = list.records ?? []
         const total = list.total ?? 0
-        pagingRef.value?.completeByTotal(records, total, true)
+        pagingRef.value?.completeByTotal(records, total)
     }
-    catch {
-        pagingRef.value?.complete(false, false)
+    finally {
+        loading.value = false
     }
 }
 
@@ -108,15 +110,15 @@ onShow(() => {
 </script>
 
 <template>
+    <page-meta page-style="overflow: hidden" />
     <z-paging
         ref="pagingRef"
-        v-model="list"
+        v-model="userCards"
         paging-class="bg-gray-50"
-        auto-show-system-loading
         @query="onQuery"
     >
         <template #top>
-            <view class="flex items-center justify-between px-4 pt-3">
+            <view class="flex items-center justify-between bg-gray-50 px-4 pb-2 pt-3">
                 <view class="flex flex-col">
                     <text class="text-xs text-gray-500">{{ t('pages.cards.totalCardBalance') }}</text>
                     <text class="mt-0.5 text-lg text-gray-900 font-semibold">
@@ -135,13 +137,37 @@ onShow(() => {
             </view>
         </template>
 
-        <template #bottom>
-            <view class="pb-tabbar" />
+        <template #loadingMoreDefault>
+            <fg-z-paging-loading-more-default @load-more="pagingRef.doLoadMore('click')" />
         </template>
 
-        <view class="flex flex-col gap-4 p-4">
+        <template #loadingMoreLoading>
+            <fg-z-paging-loading-more-loading />
+        </template>
+
+        <template #loadingMoreNoMore>
+            <fg-z-paging-loading-more-no-more />
+        </template>
+
+        <template #loadingMoreFail>
+            <fg-z-paging-loading-more-fail />
+        </template>
+
+        <view class="flex flex-col gap-4 px-4 pb-4 pt-2">
+            <template v-if="loading && userCards.length === 0">
+                <t-skeleton
+                    v-for="num in 2"
+                    :key="num"
+                    theme="image"
+                    t-class="box-border"
+                    animation="gradient"
+                    :row-col="[{ width: '100%', height: '470rpx', type: 'rect' }]"
+                    :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
+                />
+            </template>
+
             <view
-                v-for="card in list"
+                v-for="card in userCards"
                 :key="card.id"
                 class="card-block overflow-hidden rounded-2xl bg-white"
             >
@@ -230,7 +256,6 @@ onShow(() => {
 </template>
 
 <style lang="scss" scoped>
-/* uni-app 中小程序等对 UnoCSS shadow 支持不稳定，用显式 box-shadow */
 .card-block {
     box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),

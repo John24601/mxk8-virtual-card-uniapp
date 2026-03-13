@@ -1,6 +1,7 @@
 import type { IDoubleTokenRes } from '@/api/types/login'
 import type { CustomRequestOptions, IResponse } from '@/http/types'
 import { nextTick } from 'vue'
+import { t } from '@/locale'
 import { useTokenStore } from '@/store/token'
 import { isDoubleTokenMode } from '@/utils'
 import { toLoginPage } from '@/utils/toLoginPage'
@@ -9,6 +10,7 @@ import { ResultEnum } from './tools/enum'
 // 刷新 token 状态管理
 let refreshing = false // 防止重复刷新 token 标识
 let taskQueue: (() => void)[] = [] // 刷新 token 请求队列
+const SUCCESS_RESPONSE_CODES = [ResultEnum.Success0, ResultEnum.Success200]
 
 export function http<T>(options: CustomRequestOptions) {
     // 1. 返回 Promise 对象
@@ -21,11 +23,12 @@ export function http<T>(options: CustomRequestOptions) {
             // #endif
             // 响应成功
             success: async (res) => {
+                const httpStatusCode = res.statusCode
                 const responseData = res.data as IResponse<T>
-                const { code } = responseData
+                const { code: responseStatusCode, message: responseMessage } = responseData
 
                 // 检查是否是401错误（包括HTTP状态码401或业务码401）
-                const isTokenExpired = res.statusCode === 401 || code === 401
+                const isTokenExpired = httpStatusCode === 401 || responseStatusCode === 401
 
                 if (isTokenExpired) {
                     const tokenStore = useTokenStore()
@@ -35,15 +38,9 @@ export function http<T>(options: CustomRequestOptions) {
                     if (url.includes('oauth/token')) {
                         return reject(res)
                     }
-                    // 登出接口 401：只清本地，避免再次请求 logout 形成循环
-                    if (url.includes('logout')) {
-                        tokenStore.clearLocalAuth()
-                        return reject(res)
-                    }
 
-                    // console.log('🚀 ~ http ~ isDoubleTokenMode:', isDoubleTokenMode)
-                    if (!isDoubleTokenMode) {
-                        // 未启用双token策略，清理用户信息，跳转到登录页
+                    // 未启用双token策略，清理用户信息，跳转到登录页
+                    if (!isDoubleTokenMode && tokenStore.tokenInfo.access_token) {
                         tokenStore.logout()
                         toLoginPage()
                         return reject(res)
@@ -106,35 +103,46 @@ export function http<T>(options: CustomRequestOptions) {
                 }
 
                 // 处理其他成功状态（HTTP状态码200-299）
-                if (res.statusCode >= 200 && res.statusCode < 300) {
+                if (httpStatusCode >= 200 && httpStatusCode < 300) {
                     // 仅当响应为标准包装（含 code）且非成功码时，视为业务错误
-                    if (code !== undefined && code !== null && code !== ResultEnum.Success0 && code !== ResultEnum.Success200) {
-                        uni.showToast({
-                            icon: 'none',
-                            title: responseData.msg || responseData.message || '请求错误',
-                        })
+                    if (responseStatusCode !== undefined
+                        && responseStatusCode !== null
+                        && !SUCCESS_RESPONSE_CODES.includes(responseStatusCode)
+                    ) {
+                        // uni.showToast({
+                        //     icon: 'none',
+                        //     title: responseMessage || t('common.requestFailed'),
+                        // })
+
+                        return reject(responseData)
                     }
+
                     // 兼容两种格式：标准 { code, data } 取 data；否则整 body 即为结果（如卡片详情匿名接口）
                     const payload = Object.prototype.hasOwnProperty.call(responseData, 'data')
                         ? responseData.data
                         : responseData
+
                     return resolve(payload as T)
                 }
 
                 // 处理其他错误
-                !options.hideErrorToast
-                && uni.showToast({
-                    icon: 'none',
-                    title: (res.data as any).msg || '请求错误',
-                })
+                if (!options.hideErrorToast) {
+                    uni.showToast({
+                        icon: 'none',
+                        title: responseMessage || t('common.requestFailed'),
+                    })
+                }
+
+                // 全局触发 z-paging 错误事件
                 uni.$emit('z-paging-error-emit')
+
                 reject(res)
             },
             // 响应失败
             fail(err) {
                 uni.showToast({
                     icon: 'none',
-                    title: '网络错误，换个网络试试',
+                    title: t('common.networkError'),
                 })
                 reject(err)
             },

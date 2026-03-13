@@ -118,6 +118,8 @@
     "cards.createSuccess": "Create success",
     "cards.createFailed": "Create failed",
 
+    "common.networkError": "Network error, try again with a different network",
+    "common.requestFailed": "Request failed",
     "common.operateFailed": "Operation failed",
     "common.cancel": "Cancel",
     "common.confirm": "Confirm",

@@ -1,3 +1,5 @@
+import type { ResultEnum } from '@/http/tools/enum'
+
 /**
  * 在 uniapp 的 RequestOptions 和 IUniUploadFileOptions 基础上，添加自定义参数
  */
@@ -16,16 +18,11 @@ export interface HttpRequestResult<T> {
 }
 
 // 通用响应格式（兼容 msg + message 字段）
-export type IResponse<T = any> = {
-    code: number
+export interface IResponse<T = any> {
+    code: ResultEnum
     data: T
     message: string
-    [key: string]: any // 允许额外属性
-} | {
-    code: number
-    data: T
-    msg: string
-    [key: string]: any // 允许额外属性
+    success: boolean
 }
 
 // 分页请求参数

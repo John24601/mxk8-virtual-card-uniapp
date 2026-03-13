@@ -2,8 +2,9 @@
 import type { ICardCreateReq, ICardPermissionRecord } from '@/api/types/cards'
 import { isH5 } from '@uni-helper/uni-env'
 import currency from 'currency.js'
-import { cardCreate, getCardPermissions } from '@/api/pay/cards'
+import { cardCreate, checkProbationPerson, getCardPermissions, getFunctionTips } from '@/api/pay/cards'
 import { t } from '@/locale'
+import { useUserStore } from '@/store/user'
 
 defineOptions({
     name: 'CardCreate',
@@ -88,11 +89,12 @@ const expiryDateVisible = ref(false)
 const birthDateVisible = ref(false)
 const statePickerVisible = ref(false)
 const infoDialogVisible = ref(false)
+const tipsDialogVisible = ref(false)
 const cardBins = ref<ICardPermissionRecord[]>([])
 const loading = ref(false)
 const amountError = ref(false)
-const isTrialCard = ref(false)
 const agreementValue = ref<string[]>([])
+const tipsContent = ref('')
 const formData = reactive<ICardCreateReq>({
     cardBin: '',
     cardType: 'Virtual Card',
@@ -104,6 +106,7 @@ const formData = reactive<ICardCreateReq>({
     city: '',
     state: '',
     zipCode: '',
+    isTrialCard: false,
 })
 const rules = reactive({
     cardBin: [
@@ -153,11 +156,12 @@ const currentSelectedCardFees = computed(() => {
 })
 
 const monthOptions = computed(() => {
-    const months = isTrialCard.value
+    const months = formData.isTrialCard
         ? [1]
         : currentSelectedCardFees.value
             ? Object.keys(currentSelectedCardFees.value)
             : [1, 3, 6, 12, 18, 24, 36, 48, 60, 72]
+
     return months.map((month: number | string) => ({
         label: month.toString(),
         value: Number(month),
@@ -284,12 +288,46 @@ function filter(type: string, options: any[]) {
 }
 
 function onInfoCircleClick() {
-    console.log('onInfoCircleClick')
     infoDialogVisible.value = true
 }
 
-onLoad(() => {
+function getUserPreProcessingTips() {
+    getFunctionTips().catch((err) => {
+        tipsContent.value = err.message
+        tipsDialogVisible.value = true
+    })
+}
+
+function setDefaultFormData() {
+    const userStore = useUserStore()
+    const userInfo = userStore.userInfo
+    const {
+        businessAddressRegisteredGovernment: billingAddress,
+        businessAddressCity: city,
+        businessAddressState: state,
+        businessAddressZip: zip,
+    } = userInfo
+    formData.billingAddress = billingAddress ?? ''
+    formData.city = city ?? ''
+    formData.state = state ?? ''
+    formData.zipCode = zip ?? ''
+}
+
+async function checkProbationPersonInfo() {
+    const userStore = useUserStore()
+    const userInfo = userStore.userInfo
+    const data = await checkProbationPerson(userInfo.id)
+    console.log('🚀 ~ checkProbationPerson ~ data:', data)
+}
+
+onLoad((options) => {
+    checkProbationPersonInfo()
+    if (options?.isTrialCard) {
+        formData.isTrialCard = true
+    }
+    setDefaultFormData()
     getCardBins()
+    getUserPreProcessingTips()
 })
 </script>
 
@@ -374,10 +412,11 @@ onLoad(() => {
                     </view>
 
                     <view class="grid grid-cols-2 gap-4">
-                        <t-form-item :label="t('cards.amount')" name="amount">
+                        <t-form-item :label="t('cards.amount')" :help="tipsContent" name="amount">
                             <t-input
                                 v-model:value="formData.amount"
                                 type="number"
+                                :min="50"
                                 :tips="amountError ? t('cards.amountTips') : ''"
                                 suffix="USD"
                                 :format="priceFormat"
@@ -649,6 +688,18 @@ onLoad(() => {
         </template>
         <template #confirm-btn>
             <t-button theme="primary" size="large" block @click="closeInfoDialog">
+                {{ t('common.gotIt') }}
+            </t-button>
+        </template>
+    </t-dialog>
+
+    <t-dialog
+        :visible="tipsDialogVisible"
+        :title="t('common.tips')"
+        :content="tipsContent"
+    >
+        <template #confirm-btn>
+            <t-button theme="primary" size="large" block @click="tipsDialogVisible = false">
                 {{ t('common.gotIt') }}
             </t-button>
         </template>

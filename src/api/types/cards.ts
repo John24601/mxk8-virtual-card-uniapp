@@ -245,6 +245,7 @@ export interface ICardCreateReq {
     state: string
     zipCode: string
     birthDate?: string
+    isTrialCard: boolean
 }
 
 /** 卡段权限列表单项 */
@@ -258,4 +259,11 @@ export interface ICardPermissionRecord {
     prepaidCard: boolean
     showCardBin: string
     source: string
+}
+
+/** 检查是否为试用期用户响应 */
+export interface ICheckProbationPersonRes {
+    isTrialUsers: boolean
+    hasTrialCard: boolean
+    exPriesTime: string | null
 }

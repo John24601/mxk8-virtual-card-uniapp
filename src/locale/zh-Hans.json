@@ -119,6 +119,8 @@
     "cards.createSuccess": "创建成功",
     "cards.createFailed": "创建失败",
 
+    "common.networkError": "网络错误，换个网络试试",
+    "common.requestFailed": "请求错误",
     "common.operateFailed": "操作失败",
     "common.cancel": "取消",
     "common.confirm": "确定",

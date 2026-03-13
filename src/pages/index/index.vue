@@ -170,11 +170,11 @@ function goBillsList() {
 </script>
 
 <template>
-    <view class="home-page box-border min-h-100vh flex flex-col bg-gray-50 pb-tabbar">
+    <view class="home-page box-border min-h-100vh flex flex-col bg-page pb-tabbar">
         <!-- <t-navbar :title="t('home.title')" placeholder /> -->
 
         <!-- 余额区：蓝色卡片 -->
-        <view class="balance-card mx-4 mt-4 rounded-sm from-[#0052D9] to-[#0034B5] bg-gradient-to-br px-5 py-5">
+        <view class="balance-card mx-2 mt-2 rounded-sm from-[#0052D9] to-[#0034B5] bg-gradient-to-br px-5 py-5">
             <view class="flex items-center justify-between">
                 <text class="text-sm text-white opacity-90">{{ t('home.availableBalanceUnit') }}</text>
                 <t-icon
@@ -200,7 +200,7 @@ function goBillsList() {
         </view>
 
         <!-- 收支统计 -->
-        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+        <view class="mx-2 mt-2 rounded-sm bg-container px-4 py-4">
             <text class="text-base text-gray-900 font-medium">{{ t('home.incomeExpenseStats') }}</text>
             <view class="mt-3 flex gap-2">
                 <view
@@ -230,7 +230,7 @@ function goBillsList() {
         </view>
 
         <!-- 快捷入口 -->
-        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+        <view class="mx-2 mt-2 rounded-sm bg-container px-4 py-4">
             <view class="grid grid-cols-4 gap-4">
                 <view class="flex flex-col items-center gap-2" @click="goCards">
                     <view class="h-12 w-12 flex items-center justify-center border-2 border-primary rounded-full">
@@ -260,7 +260,7 @@ function goBillsList() {
         </view>
 
         <!-- 最近交易 -->
-        <view class="mx-4 mt-4 rounded-sm bg-white px-4 py-4">
+        <view class="m-2 rounded-sm bg-white px-4 py-4">
             <view class="flex items-center justify-between">
                 <text class="text-base text-gray-900 font-medium">{{ t('home.recentTransactions') }}</text>
                 <text class="text-sm text-primary" @click="goBillsList">{{ t('home.viewAll') }}</text>
@@ -295,6 +295,3 @@ function goBillsList() {
         </view>
     </view>
 </template>
-
-<style lang="scss" scoped>
-</style>

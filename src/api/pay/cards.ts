@@ -4,6 +4,7 @@ import type {
     ICardListApiRes,
     ICardPermissionRecord,
     ICardTransactionListRes,
+    ICheckProbationPersonRes,
 } from '@/api/types/cards'
 import { http } from '@/http/http'
 
@@ -13,6 +14,8 @@ const CARD_DETAIL_BASE = '/api-pay/business-card-anon/getByCardToken'
 const CARD_TX_ACTIVITY_URL = '/api-pay/sys_business_bill/cardTransactionActivity'
 const CARD_CREATE_URL = '/api-pay/sys_business_card/create'
 const CARD_PERMISSIONS_URL = '/api-pay/sys_business_card/cardPermissions'
+const FUNCTION_TIPS_URL = '/api-pay/userPreProcessing/functionTips'
+const CHECK_PROBATION_URL = '/api-user/sys/user/checkProbationPersonJSON'
 
 /**
  * 卡片列表（PRD §5.4）
@@ -68,5 +71,24 @@ export function getCardTransactionActivity(params: {
         cardToken: params.cardToken,
         current: params.current,
         pageSize: params.pageSize,
+    })
+}
+
+/**
+ * 功能提示
+ */
+export function getFunctionTips(actionType?: string) {
+    return http.get<string>(FUNCTION_TIPS_URL, {
+        actionType,
+    })
+}
+
+/**
+ * 检查是否为试用期用户
+ */
+export function checkProbationPerson(userId: string, personTrialCardCount: number = 3) {
+    return http.get<ICheckProbationPersonRes>(CHECK_PROBATION_URL, {
+        userId,
+        personTrialCardCount,
     })
 }

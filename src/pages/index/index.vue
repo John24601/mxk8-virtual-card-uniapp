@@ -156,7 +156,7 @@ function goCards() {
     uni.switchTab({ url: '/pages/cards/index' })
 }
 function goBills() {
-    uni.navigateTo({ url: '/pages/bills/list' })
+    uni.navigateTo({ url: '/pages/bills/index' })
 }
 function goFunds() {
     uni.navigateTo({ url: '/pages/funds/list' })
@@ -165,7 +165,7 @@ function goProfile() {
     uni.switchTab({ url: '/pages/profile/index' })
 }
 function goBillsList() {
-    uni.navigateTo({ url: '/pages/bills/list' })
+    uni.navigateTo({ url: '/pages/bills/index' })
 }
 </script>
 
@@ -207,7 +207,7 @@ function goBillsList() {
                     v-for="d in [7, 30, 90]"
                     :key="d"
                     class="rounded-sm px-3 py-1.5 text-sm"
-                    :class="statsDay === d ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'"
+                    :class="statsDay === d ? 'bg-[#0052D9] text-white' : 'bg-gray-100 text-gray-600'"
                     @click="statsDay = d as 7 | 30 | 90"
                 >
                     {{ t(d === 7 ? 'home.day7' : d === 30 ? 'home.day30' : 'home.day90') }}

@@ -196,7 +196,7 @@ onLoad((options) => {
     <z-paging
         ref="pagingRef"
         v-model="txList"
-        paging-class="bg-gray-50"
+        paging-class="bg-page"
         safe-area-inset-bottom
         :loading-more-enabled="false"
         @query="onQuery"
@@ -211,7 +211,7 @@ onLoad((options) => {
                 :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
             >
                 <!-- 卡片信息块：与列表页同结构同样式 -->
-                <view v-if="cardDetail" class="card-block mx-4 mt-4 overflow-hidden rounded-2xl">
+                <view v-if="cardDetail" class="card-block mx-2 mt-2 overflow-hidden rounded-2xl">
                     <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
                         <view class="flex items-center justify-between">
                             <view class="flex items-center gap-2">
@@ -255,7 +255,7 @@ onLoad((options) => {
             </t-skeleton>
 
             <!-- 该卡交易记录 -->
-            <view class="mx-4 mt-4 rounded-sm bg-white py-4">
+            <view class="mx-2 mt-2 rounded-sm bg-white py-4">
                 <view class="flex items-center justify-between px-4 pb-2">
                     <text class="text-base text-gray-900 font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
                     <text

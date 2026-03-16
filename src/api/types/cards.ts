@@ -267,3 +267,9 @@ export interface ICheckProbationPersonRes {
     hasTrialCard: boolean
     exPriesTime: string | null
 }
+
+/** 检查是否为试用期用户（个人版）响应 */
+export interface ICheckPersonUserRes {
+    isProbation: boolean
+    probationTips: string | null
+}

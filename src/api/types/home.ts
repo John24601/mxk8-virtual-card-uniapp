@@ -41,15 +41,15 @@ export interface IBillRecord {
     createTime: string
     /** 如 "PENDING" | "COMPLETED" */
     status: string
-    merchantName: string
-    merchantAddress: string
+    merchantName: string | null
+    merchantAddress: string | null
     /** 交易金额，后端返回 string 如 "20.0" */
     transactionAmount: string
     transactionTime: string
     /** 展示用类型名，如 "Pre-Authorization" | "authorization" */
     type: string
     reason: string
-    remarks: string
+    remarks: string | null
     businessNo: string
     legalRegisteredBusinessName: string
     source: number
@@ -65,7 +65,7 @@ export interface IBillRecord {
     isShow: boolean
     isShowTransactionFee: boolean
     transactionFee: number
-    userEntityType: number
+    userEntityType: number | null
     /** 展示用金额，如 "20.0" */
     showAmount: string
     amountTip: string | null

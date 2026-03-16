@@ -6,15 +6,17 @@
 
 ## 1. 文档信息
 
-| 项目 | 说明 |
-|------|------|
-| 文档版本 | v1.1 |
-| 项目名称 | mxk8-virtual-card-uniapp（MXK8 虚拟卡管理） |
-| 项目类型 | 虚拟卡管理小程序（跨端） |
-| 技术栈 | Vue 3 + Uni-app + TypeScript + Vite 5 + UnoCSS + TDesign + Alova |
-| 目标平台 | H5、微信小程序、APP |
-| 基础 URL（开发） | `https://api.mxk8.com` |
-| 平台 Header | `1001`，功能 Header `1`，功能码 `3` |
+
+| 项目         | 说明                                                               |
+| ---------- | ---------------------------------------------------------------- |
+| 文档版本       | v1.1                                                             |
+| 项目名称       | mxk8-virtual-card-uniapp（MXK8 虚拟卡管理）                             |
+| 项目类型       | 虚拟卡管理小程序（跨端）                                                     |
+| 技术栈        | Vue 3 + Uni-app + TypeScript + Vite 5 + UnoCSS + TDesign + Alova |
+| 目标平台       | H5、微信小程序、APP                                                     |
+| 基础 URL（开发） | `https://api.mxk8.com`                                           |
+| 平台 Header  | `1001`，功能 Header `1`，功能码 `3`                                     |
+
 
 ---
 
@@ -42,25 +44,29 @@
 
 ### 2.4 与当前代码库的对应关系（框架约定）
 
-| 能力 | 位置与说明 |
-|------|-------------|
-| 路由与页面 | `pages.config.ts`、约定式路由；TabBar：`src/tabbar/config.ts`（`customTabbarList` / `nativeTabbarList`） |
-| 请求与域名 | `src/http/alova.ts`，`API_DOMAINS.DEFAULT` = `import.meta.env.VITE_SERVER_BASEURL`，开发环境配置为 `https://api.mxk8.com` |
-| API 层 | `src/api/`，按模块拆分：auth、user、pay/cards、pay/funds、pay/bills |
-| 多语言 | `src/locale/`（zh-Hans.json、en.json），文案 key 建议与页面/功能对应（如 `tabbar.home`、`pages.cards.title`） |
-| 登录页路径 | `src/router/config.ts`：`LOGIN_PAGE = '/pages/auth/login'`，`REGISTER_PAGE = '/pages/auth/register'` |
-| 登录策略 | `src/router/config.ts`：`LOGIN_STRATEGY`（黑名单/白名单）、`EXCLUDE_LOGIN_PATH_LIST`；说明见 `src/router/README.md` |
-| 未登录/401 跳转 | `src/utils/toLoginPage.ts` 的 `toLoginPage()`，在 `src/http/alova.ts`、`src/http/http.ts` 中调用 |
-| 状态管理 | `src/store/`（Pinia），可按模块建 store（如 user、cards、funds） |
+
+| 能力         | 位置与说明                                                                                                            |
+| ---------- | ---------------------------------------------------------------------------------------------------------------- |
+| 路由与页面      | `pages.config.ts`、约定式路由；TabBar：`src/tabbar/config.ts`（`customTabbarList` / `nativeTabbarList`）                   |
+| 请求与域名      | `src/http/alova.ts`，`API_DOMAINS.DEFAULT` = `import.meta.env.VITE_SERVER_BASEURL`，开发环境配置为 `https://api.mxk8.com` |
+| API 层      | `src/api/`，按模块拆分：auth、user、pay/cards、pay/funds、pay/bills                                                         |
+| 多语言        | `src/locale/`（zh-Hans.json、en.json），文案 key 建议与页面/功能对应（如 `tabbar.home`、`pages.cards.title`）                       |
+| 登录页路径      | `src/router/config.ts`：`LOGIN_PAGE = '/pages/auth/login'`，`REGISTER_PAGE = '/pages/auth/register'`               |
+| 登录策略       | `src/router/config.ts`：`LOGIN_STRATEGY`（黑名单/白名单）、`EXCLUDE_LOGIN_PATH_LIST`；说明见 `src/router/README.md`            |
+| 未登录/401 跳转 | `src/utils/toLoginPage.ts` 的 `toLoginPage()`，在 `src/http/alova.ts`、`src/http/http.ts` 中调用                        |
+| 状态管理       | `src/store/`（Pinia），可按模块建 store（如 user、cards、funds）                                                              |
+
 
 ---
 
 ## 3. 用户与使用场景
 
-| 角色 | 场景简述 |
-|------|----------|
-| 未登录用户 | 仅可访问登录页，登录后进入首页 |
+
+| 角色    | 场景简述                                   |
+| ----- | -------------------------------------- |
+| 未登录用户 | 仅可访问登录页，登录后进入首页                        |
 | 已登录用户 | 查看余额与卡片、创建/充值/禁用卡片、查看交易与资金流水、修改密码与二级密码 |
+
 
 ---
 
@@ -70,14 +76,16 @@
 
 ### 4.1 模块总览
 
-| 序号 | 模块 | 说明 | 页面路径 |
-|------|------|------|----------|
-| 1 | 用户认证 | 登录、图形验证码 | `pages/login/index` 或 `pages/auth/login` |
-| 2 | 用户管理 | 个人中心、修改密码、二级密码 | `pages/profile/index`、`password`、`second-password` |
-| 3 | 卡片管理（核心） | 列表、详情、创建 | `pages/cards/list`、`detail`、`create` |
-| 4 | 账单交易 | 交易记录、账单详情 | `pages/bills/list`、`detail` |
-| 5 | 资金管理 | 资金流水 | `pages/funds/list` |
-| 6 | 首页 | 汇总与入口 | `pages/home/index` |
+
+| 序号  | 模块       | 说明             | 页面路径                                               |
+| --- | -------- | -------------- | -------------------------------------------------- |
+| 1   | 用户认证     | 登录、图形验证码       | `pages/login/index` 或 `pages/auth/login`           |
+| 2   | 用户管理     | 个人中心、修改密码、二级密码 | `pages/profile/index`、`password`、`second-password` |
+| 3   | 卡片管理（核心） | 列表、详情、创建       | `pages/cards/list`、`detail`、`create`               |
+| 4   | 账单交易     | 交易记录、账单详情      | `pages/bills/list`、`detail`                        |
+| 5   | 资金管理     | 资金流水           | `pages/funds/list`                                 |
+| 6   | 首页       | 汇总与入口          | `pages/home/index`                                 |
+
 
 ### 4.2 页面与路由规范（供 Cursor 生成页面时使用）
 
@@ -119,55 +127,67 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 
 ### 5.1 认证模块
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
-| 登录 | POST | `/api-uaa/oauth/token` | Headers: `Authorization: Basic d2ViQXBwOndlYkFwcA==`。Body: `username`, `password`, `client_id`, `client_secret`, `grant_type: 'password'`, `scope: 'server'`。返回: `access_token`, `token_type`, `refresh_token`, `expires_in`, `scope`。 |
-| 退出登录 | POST | `/api-uaa/oauth/logout` | 无特殊 Body。 |
+
+| 接口说明 | 方法   | 路径                      | 请求/响应要点                                                                                                                                                                                                                                |
+| ---- | ---- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 登录   | POST | `/api-uaa/oauth/token`  | Headers: `Authorization: Basic d2ViQXBwOndlYkFwcA==`。Body: `username`, `password`, `client_id`, `client_secret`, `grant_type: 'password'`, `scope: 'server'`。返回: `access_token`, `token_type`, `refresh_token`, `expires_in`, `scope`。 |
+| 退出登录 | POST | `/api-uaa/oauth/logout` | 无特殊 Body。                                                                                                                                                                                                                              |
+
 
 ### 5.2 用户模块
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
-| 获取当前用户 | GET | `/api-pay/sys_business/getSysBusinessByCurrentUser` | 返回: `id`, `username`, `phone`, `email`, `status`, `avatar`。 |
-| 修改密码 | PUT | `/api-user/sys/user/changPassword` | Body: `id`, `currentPassword`, `password`。 |
-| 设置二级密码 | POST | `/api-user/sys/user/setSecondPassword` | Body: `secondPassword`。 |
+
+| 接口说明   | 方法   | 路径                                                  | 请求/响应要点                                                     |
+| ------ | ---- | --------------------------------------------------- | ----------------------------------------------------------- |
+| 获取当前用户 | GET  | `/api-pay/sys_business/getSysBusinessByCurrentUser` | 返回: `id`, `username`, `phone`, `email`, `status`, `avatar`。 |
+| 修改密码   | PUT  | `/api-user/sys/user/changPassword`                  | Body: `id`, `currentPassword`, `password`。                  |
+| 设置二级密码 | POST | `/api-user/sys/user/setSecondPassword`              | Body: `secondPassword`。                                     |
+
 
 ### 5.3 资金管理模块
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
-| 用户账户余额 | GET | `/api-pay/sys_user_account/getUserAccount` | 返回: `Amount`, `AvailableAmount`, `CardBalance`。 |
-| 收支统计 | GET | `/api-pay/sys_funds/totalFundAmount` | Params: `level: 2`, `type: 1`, `day`（7/30/90）。返回: `mxk_pay_money_in`, `mxk_pay_money_out`。 |
-| 资金流水列表 | GET | `/api-pay/sys_funds/list` | Params: `field: 'id,initiated,fundsAvailable,description,type,amount,availableBalance,status'`, `current`, `pageSize`。返回: `records[]`（含 `id`, `type`, `amount`, `availableBalance`, `status`, `description`, `createTime`）, `total`。 |
-| 充值记录 | GET | `/api-pay/sys_funds/getFundsActivityData` | Params: `current`, `pageSize`。返回: `records[]`（`id`, `amount`, `type`, `status`, `createTime`）, `total`。 |
-| 最新资金数据 | GET | `/api-pay/sys_funds/getFundsLatestData` | Params: `level`, `type`。返回: 最新资金数据。 |
+
+| 接口说明   | 方法  | 路径                                         | 请求/响应要点                                                                                                                                                                                                                              |
+| ------ | --- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 用户账户余额 | GET | `/api-pay/sys_user_account/getUserAccount` | 返回: `Amount`, `AvailableAmount`, `CardBalance`。                                                                                                                                                                                      |
+| 收支统计   | GET | `/api-pay/sys_funds/totalFundAmount`       | Params: `level: 2`, `type: 1`, `day`（7/30/90）。返回: `mxk_pay_money_in`, `mxk_pay_money_out`。                                                                                                                                           |
+| 资金流水列表 | GET | `/api-pay/sys_funds/list`                  | Params: `field: 'id,initiated,fundsAvailable,description,type,amount,availableBalance,status'`, `current`, `pageSize`。返回: `records[]`（含 `id`, `type`, `amount`, `availableBalance`, `status`, `description`, `createTime`）, `total`。 |
+| 充值记录   | GET | `/api-pay/sys_funds/getFundsActivityData`  | Params: `current`, `pageSize`。返回: `records[]`（`id`, `amount`, `type`, `status`, `createTime`）, `total`。                                                                                                                              |
+| 最新资金数据 | GET | `/api-pay/sys_funds/getFundsLatestData`    | Params: `level`, `type`。返回: 最新资金数据。                                                                                                                                                                                                  |
+
 
 ### 5.4 卡片管理模块（核心）
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
-| 卡片列表 | GET | `/api-pay/sys_business_card/list` | Params: `current`, `pageSize`, `column: 'createTime'`, `order: 'desc'`。返回: `records[]`（见下表）, `total`, `cardAll.availableAmount`。 |
-| 卡片总余额 | GET | `/api-pay/sys_business_card/totalCardSurplusLimitAmount` | 返回: number。 |
-| 创建卡片 | POST | `/api-pay/sys_business_card/create` | Body: `cardBin`, `cardType: 'Virtual Card'`, `firstName`, `lastName`, `billingAddress`, `amount`, `expiryDate`, `email`, `phone`, `city`, `state`, `zipCode`, `birthDate`。 |
-| 卡片充值 | PUT | `/api-pay/sys_business_card/updateSurplusLimitAmount` | Body: `id`（卡片ID）, `surplusLimitAmount`（充值金额）。**业务规则**：最低充值 50 美元。 |
-| 切换卡片状态 | PUT | `/api-card/sys_business_card/changeCardStauts` | Body: `id`, `status`（0: 激活, 1: 禁用）。 |
-| 卡片详情（匿名） | GET | `/api-pay/business-card-anon/getByCardToken/{cardToken}` | 返回: `id`, `cardNumber`, `cardType`, `availableAmount`, `limitAmount`, `status`, `firstName`, `lastName`, `cardToken`, `expireDate`, `cvv`, `billingAddress`, `createTime`。 |
-| 完整卡号（需二级密码） | GET | `/api-pay/selectCardDetail` | Params: `cardToken`, `secondPassword`。返回: `number`（完整卡号）, `cvc`/`cvv`, `cardNumber`。 |
-| 卡片交易记录 | GET | `/api-pay/sys_business_bill/cardTransactionActivity` | Params: `cardToken`, `current`, `pageSize`。返回: `records[]`（`id`, `merchantName`, `transactionType`, `transactionAmount`, `transactionTime`, `transactionStatus`, `description`）, `total`。 |
-| 卡段权限列表 | GET | `/api-pay/sys_business_card/cardPermissions` | 返回: `records[]`（`id`, `cardBin`, `cardName`, `isApply`）。`isApply: true` 可申请，`false` 置灰不可选。 |
+
+| 接口说明        | 方法   | 路径                                                       | 请求/响应要点                                                                                                                                                                                   |
+| ----------- | ---- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 卡片列表        | GET  | `/api-pay/sys_business_card/list`                        | Params: `current`, `pageSize`, `column: 'createTime'`, `order: 'desc'`。返回: `records[]`（见下表）, `total`, `cardAll.availableAmount`。                                                          |
+| 卡片总余额       | GET  | `/api-pay/sys_business_card/totalCardSurplusLimitAmount` | 返回: number。                                                                                                                                                                               |
+| 创建卡片        | POST | `/api-pay/sys_business_card/create`                      | Body: `cardBin`, `cardType: 'Virtual Card'`, `firstName`, `lastName`, `billingAddress`, `amount`, `expiryDate`, `email`, `phone`, `city`, `state`, `zipCode`, `birthDate`。                |
+| 卡片充值        | PUT  | `/api-pay/sys_business_card/updateSurplusLimitAmount`    | Body: `id`（卡片ID）, `surplusLimitAmount`（充值金额）。**业务规则**：最低充值 50 美元。                                                                                                                         |
+| 切换卡片状态      | PUT  | `/api-card/sys_business_card/changeCardStauts`           | Body: `id`, `status`（0: 激活, 1: 禁用）。                                                                                                                                                       |
+| 卡片详情（匿名）    | GET  | `/api-pay/business-card-anon/getByCardToken/{cardToken}` | 返回: `id`, `cardNumber`, `cardType`, `availableAmount`, `limitAmount`, `status`, `firstName`, `lastName`, `cardToken`, `expireDate`, `cvv`, `billingAddress`, `createTime`。                |
+| 完整卡号（需二级密码） | GET  | `/api-pay/selectCardDetail`                              | Params: `cardToken`, `secondPassword`。返回: `number`（完整卡号）, `cvc`/`cvv`, `cardNumber`。                                                                                                      |
+| 卡片交易记录      | GET  | `/api-pay/sys_business_bill/cardTransactionActivity`     | Params: `cardToken`, `current`, `pageSize`。返回: `records[]`（`id`, `merchantName`, `transactionType`, `transactionAmount`, `transactionTime`, `transactionStatus`, `description`）, `total`。 |
+| 卡段权限列表      | GET  | `/api-pay/sys_business_card/cardPermissions`             | 返回: `records[]`（`id`, `cardBin`, `cardName`, `isApply`）。`isApply: true` 可申请，`false` 置灰不可选。                                                                                                |
+
 
 ### 5.5 账单模块
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
-| 交易记录列表 | GET | `/api-pay/sys_business_bill/list` | Params: `current`, `pageSize`, `transactionType`（可选）。返回: `records[]`（`id`, `transactionAmount`, `transactionType`, `transactionTypeName`, `transactionStatus`, `transactionStatusName`, `merchantName`, `createTime`）, `total`。 |
-| 账单详情 | GET | `/api-pay/sys_business_bill/detail/{id}` | 返回: 账单详细信息。 |
+
+| 接口说明   | 方法  | 路径                                       | 请求/响应要点                                                                                                                                                                                                                         |
+| ------ | --- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 交易记录列表 | GET | `/api-pay/sys_business_bill/list`        | Params: `current`, `pageSize`, `transactionType`（可选）。返回: `records[]`（`id`, `transactionAmount`, `transactionType`, `transactionTypeName`, `transactionStatus`, `transactionStatusName`, `merchantName`, `createTime`）, `total`。 |
+| 账单详情   | GET | `/api-pay/sys_business_bill/detail/{id}` | 返回: 账单详细信息。                                                                                                                                                                                                                     |
+
 
 ### 5.6 首页模块
 
-| 接口说明 | 方法 | 路径 | 请求/响应要点 |
-|----------|------|------|----------------|
+
+| 接口说明 | 方法  | 路径                                | 请求/响应要点                                             |
+| ---- | --- | --------------------------------- | --------------------------------------------------- |
 | 最近交易 | GET | `/api-pay/sys_business_bill/list` | Params: `current: 1`, `pageSize: 5`。返回: 最近 5 条交易记录。 |
+
 
 ---
 
@@ -175,30 +195,36 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 
 ### 6.1 卡片状态（Card Status）
 
-| 值 | 常量名 | 说明 |
-|----|--------|------|
-| 0 | Normal | 正常 |
-| 1 | Freeze | 冻结/禁用 |
-| - | Closed | 已关闭 |
-| - | Pending | 待激活 |
-| - | PendingCharge | 待扣费 |
+
+| 值   | 常量名           | 说明    |
+| --- | ------------- | ----- |
+| 0   | Normal        | 正常    |
+| 1   | Freeze        | 冻结/禁用 |
+| -   | Closed        | 已关闭   |
+| -   | Pending       | 待激活   |
+| -   | PendingCharge | 待扣费   |
+
 
 ### 6.2 交易类型（Transaction Type）
 
-| 值 | 常量名 | 说明 |
-|----|--------|------|
-| Credit | Credit | 收入 |
-| Debit | Debit | 支出 |
+
+| 值      | 常量名    | 说明  |
+| ------ | ------ | --- |
+| Credit | Credit | 收入  |
+| Debit  | Debit  | 支出  |
+
 
 ### 6.3 交易状态（Transaction Status）
 
-| 值 | 常量名 | 说明 |
-|----|--------|------|
-| SUCCESS | SUCCESS | 成功 |
-| FAILED | FAILED | 失败 |
-| PENDING | PENDING | 处理中 |
+
+| 值         | 常量名       | 说明  |
+| --------- | --------- | --- |
+| SUCCESS   | SUCCESS   | 成功  |
+| FAILED    | FAILED    | 失败  |
+| PENDING   | PENDING   | 处理中 |
 | CANCELLED | CANCELLED | 已取消 |
 | Completed | Completed | 已完成 |
+
 
 ### 6.4 资金流水类型
 
@@ -256,7 +282,7 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 - **多端一致**：H5、微信小程序、APP 行为与数据一致，仅适配导航栏、安全区等；支持 iOS/Android、主流浏览器，响应式适配不同屏幕。
 - **多语言**：沿用现有 `src/locale`（zh-Hans、en），新文案需同时维护中英文 key。
 - **错误与登录态**：未登录或 401 时跳转登录页（`toLoginPage()`，路由见 `src/router/config.ts`）。
-- **性能**：列表分页、下拉刷新，避免一次性拉取大量数据；参考指标：页面加载 &lt; 3s，接口响应 &lt; 2s。
+- **性能**：列表分页、下拉刷新，避免一次性拉取大量数据；参考指标：页面加载 < 3s，接口响应 < 2s。
 - **安全**：数据传输 HTTPS；敏感信息加密存储；防护 SQL 注入与 XSS。
 
 ---
@@ -276,12 +302,14 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 
 ### 10.1 排期建议
 
-| 阶段 | 周期 | 内容 |
-|------|------|------|
-| 一 | 2 周 | 项目框架搭建、用户认证模块、基础页面结构 |
-| 二 | 3 周 | 首页模块、资金管理、卡片列表 |
-| 三 | 3 周 | 卡片详情、交易记录、卡片创建与充值 |
-| 四 | 2 周 | 测试与优化、安全加固、部署上线 |
+
+| 阶段  | 周期  | 内容                   |
+| --- | --- | -------------------- |
+| 一   | 2 周 | 项目框架搭建、用户认证模块、基础页面结构 |
+| 二   | 3 周 | 首页模块、资金管理、卡片列表       |
+| 三   | 3 周 | 卡片详情、交易记录、卡片创建与充值    |
+| 四   | 2 周 | 测试与优化、安全加固、部署上线      |
+
 
 ### 10.2 风险与应对
 
@@ -299,9 +327,11 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 
 ## 文档更新记录
 
-| 版本 | 更新内容 | 更新日期 |
-|------|----------|----------|
-| v1.0 | 初始版本创建 | 2026-02-28 |
+
+| 版本   | 更新内容                                                                                                  | 更新日期       |
+| ---- | ----------------------------------------------------------------------------------------------------- | ---------- |
+| v1.0 | 初始版本创建                                                                                                | 2026-02-28 |
 | v1.1 | 补充项目背景与目标用户、功能需求细节（首页快捷入口、卡片 UI/快捷金额）、业务规则汇总、非功能指标、排期与风险、框架约定（登录页/登录策略/toLoginPage/i18n/store）、文档更新记录 | 2026-02-28 |
+
 
 *修改本 PRD 时请同步更新上表与 §1 文档版本。*

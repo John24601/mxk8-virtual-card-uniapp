@@ -118,6 +118,11 @@
     "cards.agreementRequired": "请同意所有协议",
     "cards.createSuccess": "创建成功",
     "cards.createFailed": "创建失败",
+    "cards.trialCardTipsTitle": "测试卡使用规则",
+    "cards.trialCardTipsContent": "试用期间可免费创建1张测试卡；",
+    "cards.trialCardTipsContent2": "测试卡有效期：仅可选择1个月；",
+    "cards.trialCardTipsContent3": "测试卡免开卡费；",
+    "cards.trialCardTipsContent4": "测试卡注销规则：注册后用户完成IDV的时间起算，3天内删除免删卡费。",
 
     "common.networkError": "网络错误，换个网络试试",
     "common.requestFailed": "请求错误",
@@ -163,5 +168,11 @@
     "settings.placeholderConfirmSecondaryPassword": "请再次输入二级密码",
     "settings.secondaryPasswordMismatch": "两次输入的二级密码不一致",
     "settings.secondaryPasswordSuccess": "二级密码设置成功",
-    "fee.title": "费用说明"
+    "fee.title": "费用说明",
+
+    "pages.bills.title": "交易记录",
+    "pages.bills.filterAll": "全部",
+    "pages.bills.filterIncome": "收入",
+    "pages.bills.filterExpense": "支出",
+    "pages.bills.empty": "暂无交易记录"
 }

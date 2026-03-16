@@ -101,6 +101,9 @@ export default defineConfig({
             primary: 'var(--td-brand-color)',
             page: 'var(--td-bg-color-page)',
             container: 'var(--td-bg-color-container)',
+            success: 'var(--td-success-color)',
+            warning: 'var(--td-warning-color)',
+            error: 'var(--td-error-color)',
         },
         fontSize: {
             /** 提供更小号的字体，用法如：text-2xs */

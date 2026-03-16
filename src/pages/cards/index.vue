@@ -111,6 +111,7 @@ onShow(() => {
 
 <template>
     <page-meta page-style="overflow: hidden" />
+
     <z-paging
         ref="pagingRef"
         v-model="userCards"
@@ -135,22 +136,6 @@ onShow(() => {
                     {{ t('pages.cards.create') }}
                 </t-button>
             </view>
-        </template>
-
-        <template #loadingMoreDefault>
-            <fg-z-paging-loading-more-default @load-more="pagingRef.doLoadMore('click')" />
-        </template>
-
-        <template #loadingMoreLoading>
-            <fg-z-paging-loading-more-loading />
-        </template>
-
-        <template #loadingMoreNoMore>
-            <fg-z-paging-loading-more-no-more />
-        </template>
-
-        <template #loadingMoreFail>
-            <fg-z-paging-loading-more-fail />
         </template>
 
         <view class="flex flex-col gap-4 px-4 pb-4 pt-2">
@@ -252,6 +237,22 @@ onShow(() => {
                 </view>
             </view>
         </view>
+
+        <template #loadingMoreDefault>
+            <fg-z-paging-loading-more-default @load-more="pagingRef.doLoadMore('click')" />
+        </template>
+
+        <template #loadingMoreLoading>
+            <fg-z-paging-loading-more-loading />
+        </template>
+
+        <template #loadingMoreNoMore>
+            <fg-z-paging-loading-more-no-more />
+        </template>
+
+        <template #loadingMoreFail>
+            <fg-z-paging-loading-more-fail />
+        </template>
     </z-paging>
 </template>
 

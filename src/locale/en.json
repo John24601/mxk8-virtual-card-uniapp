@@ -117,6 +117,11 @@
     "cards.agreementRequired": "Please agree to all agreements",
     "cards.createSuccess": "Create success",
     "cards.createFailed": "Create failed",
+    "cards.trialCardTipsTitle": "Trial Card Usage Rules",
+    "cards.trialCardTipsContent": "During the trial period, you can create 1 free trial card;",
+    "cards.trialCardTipsContent2": "Trial Card Validity Period: only 1 month can be selected;",
+    "cards.trialCardTipsContent3": "Trial card free of charge;",
+    "cards.trialCardTipsContent4": "Trial Card Deletion Rule: the time of completing IDV after registration, 3 days after deletion free of charge.",
 
     "common.networkError": "Network error, try again with a different network",
     "common.requestFailed": "Request failed",
@@ -162,5 +167,11 @@
     "settings.placeholderConfirmSecondaryPassword": "Enter secondary password again",
     "settings.secondaryPasswordMismatch": "Secondary passwords do not match",
     "settings.secondaryPasswordSuccess": "Secondary password set successfully",
-    "fee.title": "Fee Description"
+    "fee.title": "Fee Description",
+
+    "pages.bills.title": "Transactions",
+    "pages.bills.filterAll": "All",
+    "pages.bills.filterIncome": "Income",
+    "pages.bills.filterExpense": "Expense",
+    "pages.bills.empty": "No transactions yet"
 }

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { ICardCreateReq, ICardPermissionRecord } from '@/api/types/cards'
+import type { ICardCreateReq, ICardPermissionRecord, ICheckProbationPersonRes } from '@/api/types/cards'
 import { isH5 } from '@uni-helper/uni-env'
 import currency from 'currency.js'
-import { cardCreate, checkProbationPerson, getCardPermissions, getFunctionTips } from '@/api/pay/cards'
+import { cardCreate, checkPersonUser, checkProbationPerson, getCardPermissions, getFunctionTips } from '@/api/pay/cards'
 import { t } from '@/locale'
 import { useUserStore } from '@/store/user'
 
@@ -90,6 +90,12 @@ const birthDateVisible = ref(false)
 const statePickerVisible = ref(false)
 const infoDialogVisible = ref(false)
 const tipsDialogVisible = ref(false)
+const trialCardTipsVisible = ref(false)
+const commonCreateCardTips = reactive({
+    visible: false,
+    content: '',
+})
+const probationPersonInfo = ref<ICheckProbationPersonRes | null>(null)
 const cardBins = ref<ICardPermissionRecord[]>([])
 const loading = ref(false)
 const amountError = ref(false)
@@ -232,7 +238,7 @@ function closeInfoDialog() {
     infoDialogVisible.value = false
 }
 
-async function handleSubmit() {
+function handlePreSubmit() {
     console.log('formData', formData)
     formRef.value.validate().then(async (result) => {
         console.log('🚀 ~ handleSubmit ~ agreementValue.value:', agreementValue.value)
@@ -246,30 +252,45 @@ async function handleSubmit() {
             })
             return
         }
+        if (probationPersonInfo.value?.isTrialUsers) {
+            return handleSubmit()
+        }
         loading.value = true
         try {
-            await cardCreate(formData)
-            uni.showToast({
-                title: t('cards.createSuccess'),
-                icon: 'success',
-            })
-            setTimeout(() => {
-                uni.switchTab({
-                    url: '/pages/cards/index',
-                })
-            }, 1500)
-        }
-        catch (error) {
-            console.error('🚀 ~ handleSubmit ~ error:', error)
-            uni.showToast({
-                title: t('common.operateFailed'),
-                icon: 'none',
-            })
+            const { probationTips } = await checkPersonUser(formData.isTrialCard)
+            commonCreateCardTips.content = probationTips ?? ''
+            commonCreateCardTips.visible = true
         }
         finally {
             loading.value = false
         }
     })
+}
+
+async function handleSubmit() {
+    loading.value = true
+    try {
+        await cardCreate(formData)
+        uni.showToast({
+            title: t('cards.createSuccess'),
+            icon: 'success',
+        })
+        setTimeout(() => {
+            uni.switchTab({
+                url: '/pages/cards/index',
+            })
+        }, 1500)
+    }
+    catch (error) {
+        console.error('🚀 ~ handleSubmit ~ error:', error)
+        uni.showToast({
+            title: t('common.operateFailed'),
+            icon: 'none',
+        })
+    }
+    finally {
+        loading.value = false
+    }
 }
 
 function priceFormat(v: string) {
@@ -313,20 +334,37 @@ function setDefaultFormData() {
     formData.zipCode = zip ?? ''
 }
 
-async function checkProbationPersonInfo() {
+async function getProbationPersonInfo() {
     const userStore = useUserStore()
     const userInfo = userStore.userInfo
-    const data = await checkProbationPerson(userInfo.id)
-    console.log('🚀 ~ checkProbationPerson ~ data:', data)
+    try {
+        const data = await checkProbationPerson(userInfo.id)
+        probationPersonInfo.value = data
+        return data
+    }
+    catch (error) {
+        console.error('🚀 ~ getProbationPersonInfo ~ error:', error)
+        return Promise.reject(error)
+    }
+}
+
+async function setTrialCardTipsVisible(is_create_trial_card: boolean = false) {
+    try {
+        const { hasTrialCard } = await getProbationPersonInfo()
+        if (!hasTrialCard && is_create_trial_card) {
+            trialCardTipsVisible.value = true
+            formData.isTrialCard = true
+        }
+    }
+    catch (error) {
+        return Promise.reject(error)
+    }
 }
 
 onLoad((options) => {
-    checkProbationPersonInfo()
-    if (options?.isTrialCard) {
-        formData.isTrialCard = true
-    }
     setDefaultFormData()
     getCardBins()
+    setTrialCardTipsVisible(options?.is_create_trial_card)
     getUserPreProcessingTips()
 })
 </script>
@@ -336,7 +374,7 @@ onLoad((options) => {
 
     <z-paging
         ref="pagingRef"
-        paging-class="bg-gray-50"
+        paging-class="bg-page"
         :refresher-enabled="false"
         :loading-more-enabled="false"
         safe-area-inset-bottom
@@ -365,7 +403,7 @@ onLoad((options) => {
         <view class="px-2 pb-2">
             <t-form
                 ref="formRef"
-                :model="formData"
+                :data="formData"
                 :rules="rules"
                 label-align="top"
                 label-width="100%"
@@ -499,7 +537,7 @@ onLoad((options) => {
 
                         <t-form-item arrow :label="t('cards.state')" name="state">
                             <t-input
-                                v-model:value="formData.state"
+                                :value="formData.state"
                                 :placeholder="t('cards.selectState')"
                                 borderless
                                 style="flex: 1;"
@@ -601,7 +639,7 @@ onLoad((options) => {
                     icon="creditcard"
                     block
                     :loading="loading"
-                    @click="handleSubmit"
+                    @click="handlePreSubmit"
                 >
                     {{ t('cards.createPageTitle') }}
                 </t-button>
@@ -613,7 +651,6 @@ onLoad((options) => {
         v-model:visible="cardBinVisible"
         :value="[formData.cardBin]"
         data-key="cardBin"
-        :title="t('cards.selectCardBin')"
         :cancel-btn="t('common.cancel')"
         :confirm-btn="t('common.confirm')"
         @change="onCardBinPickerChange"
@@ -625,7 +662,6 @@ onLoad((options) => {
         v-model:visible="expiryDateVisible"
         :value="[formData.expiryDate]"
         data-key="expiryDate"
-        :title="t('cards.selectExpiryDate')"
         :cancel-btn="t('common.cancel')"
         :confirm-btn="t('common.confirm')"
         @change="onExpiryDatePickerChange"
@@ -638,7 +674,6 @@ onLoad((options) => {
         v-model:value="formData.birthDate"
         data-key="birthDate"
         auto-close
-        :title="t('cards.selectBirthDate')"
         :confirm-btn="t('common.confirm')"
         :cancel-btn="t('common.cancel')"
         mode="date"
@@ -652,7 +687,6 @@ onLoad((options) => {
         v-model:visible="statePickerVisible"
         :value="[formData.state]"
         data-key="state"
-        :title="t('cards.selectState')"
         :cancel-btn="t('common.cancel')"
         :confirm-btn="t('common.confirm')"
         @change="onStatePickerChange"
@@ -704,6 +738,49 @@ onLoad((options) => {
             </t-button>
         </template>
     </t-dialog>
+
+    <t-dialog
+        :visible="trialCardTipsVisible"
+        :title="t('cards.trialCardTipsTitle')"
+    >
+        <template #content>
+            <view class="flex flex-col gap-2 pt-4">
+                <text>{{ t('cards.trialCardTipsContent') }}</text>
+                <text>{{ t('cards.trialCardTipsContent2') }}</text>
+                <text>{{ t('cards.trialCardTipsContent3') }}</text>
+                <text>{{ t('cards.trialCardTipsContent4') }}</text>
+            </view>
+        </template>
+
+        <template #confirm-btn>
+            <t-button theme="primary" size="large" block @click="trialCardTipsVisible = false">
+                {{ t('common.gotIt') }}
+            </t-button>
+        </template>
+    </t-dialog>
+
+    <t-dialog
+        :visible="commonCreateCardTips.visible"
+        :title="t('common.tips')"
+    >
+        <template #content>
+            <view class="pt-4">
+                <rich-text :nodes="commonCreateCardTips.content" />
+            </view>
+        </template>
+
+        <template #confirm-btn>
+            <t-button
+                theme="primary"
+                size="large"
+                :loading="loading"
+                block
+                @click="handleSubmit"
+            >
+                {{ t('common.gotIt') }}
+            </t-button>
+        </template>
+    </t-dialog>
 </template>
 
 <style lang="scss" scoped>
@@ -751,13 +828,13 @@ onLoad((options) => {
 :deep(.t-form-item__controls-content) {
     box-sizing: border-box;
     margin-top: 10rpx;
-    background-color: var(--td-brand-color-1);
+    background-color: var(--td-bg-color-page);
     border-radius: 4rpx;
     padding: 20rpx 20rpx 20rpx 24rpx;
 }
 
 :deep(.t-input__wrap) {
-    background-color: var(--td-brand-color-1);
+    background-color: var(--td-bg-color-page);
 }
 
 :deep(.t-form-item__label--required) {

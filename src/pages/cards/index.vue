@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ICardAllSummary, ICardRecord } from '@/api/types/cards'
+import currency from 'currency.js'
 import { changeCardStatus, getCardList } from '@/api/pay/cards'
 import { t } from '@/locale'
 
@@ -115,30 +116,28 @@ onShow(() => {
     <z-paging
         ref="pagingRef"
         v-model="userCards"
-        paging-class="bg-gray-50"
+        paging-class="bg-page"
         @query="onQuery"
     >
         <template #top>
-            <view class="flex items-center justify-between bg-gray-50 px-4 pb-2 pt-3">
+            <view class="flex items-center justify-between bg-page px-4 pb-2 pt-3">
                 <view class="flex flex-col">
-                    <text class="text-xs text-gray-500">{{ t('pages.cards.totalCardBalance') }}</text>
-                    <text class="mt-0.5 text-lg text-gray-900 font-semibold">
-                        {{ formatMoney(cardAll?.availableAmount ?? 0) }}
+                    <text class="text-xs text-secondary">{{ t('pages.cards.totalCardBalance') }}</text>
+                    <text class="mt-0.5 text-lg font-semibold">
+                        {{ currency(cardAll?.availableAmount ?? 0).format() }}
                     </text>
                 </view>
                 <t-button
                     theme="primary"
-                    size="small"
                     icon="add"
+                    shape="circle"
                     t-class="m-0!"
                     @click="goCreate"
-                >
-                    {{ t('pages.cards.create') }}
-                </t-button>
+                />
             </view>
         </template>
 
-        <view class="flex flex-col gap-4 px-4 pb-4 pt-2">
+        <view class="flex flex-col gap-3 px-4 pb-4 pt-2">
             <template v-if="loading && userCards.length === 0">
                 <t-skeleton
                     v-for="num in 2"

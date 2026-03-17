@@ -91,8 +91,8 @@ onShow(() => {
             </view>
         </template> -->
 
-        <view class="p-2">
-            <view class="flex flex-col rounded-sm bg-white p-4">
+        <view class="px-4 py-3">
+            <view class="flex flex-col rounded-2xl bg-container p-4">
                 <view
                     v-for="(item, index) in list"
                     :key="item.id"
@@ -100,20 +100,20 @@ onShow(() => {
                 >
                     <view class="flex items-start justify-between gap-4">
                         <view class="min-w-0 flex-1">
-                            <text class="block truncate text-primary font-medium">
+                            <text class="block truncate font-medium">
                                 {{ item.merchantName || '--' }}
                             </text>
-                            <view class="mt-1 flex flex-col text-xs text-[var(--td-text-color-secondary)]">
+                            <view class="mt-1 flex flex-col text-xs text-secondary">
                                 <text>{{ item.cardName }}</text>
                                 <text class="mt-1">{{ `${item.cardBin} **** ${item.cardNumber}` }}</text>
                             </view>
-                            <text class="mt-1 block text-xs text-[var(--td-text-color-placeholder)]">
+                            <text class="mt-2 block text-xs text-placeholder">
                                 {{ item.transactionTime }} (UTC)
                             </text>
                         </view>
 
                         <view class="flex flex-col items-end">
-                            <text class="shrink-0 font-semibold">
+                            <text class="shrink-0 text-warning font-semibold">
                                 {{ currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` }) }}
                             </text>
 

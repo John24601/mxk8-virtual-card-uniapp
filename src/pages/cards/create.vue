@@ -380,7 +380,7 @@ onLoad((options) => {
         safe-area-inset-bottom
     >
         <template #top>
-            <view class="p-2">
+            <view class="px-3 py-3">
                 <t-radio-group :value="0">
                     <view class="card card--active">
                         <t-icon
@@ -400,7 +400,7 @@ onLoad((options) => {
             </view>
         </template>
 
-        <view class="px-2 pb-2">
+        <view class="px-3 pb-3">
             <t-form
                 ref="formRef"
                 :data="formData"
@@ -415,8 +415,8 @@ onLoad((options) => {
                 required-mark
                 required-mark-position="right"
             >
-                <view class="bg-white px-4 py-4">
-                    <view class="text-sm text-gray-500">
+                <view class="rounded-2xl bg-white px-3 py-4">
+                    <view class="text-sm text-secondary">
                         {{ t('cards.basicInfo') }}
                     </view>
 
@@ -431,7 +431,7 @@ onLoad((options) => {
                         />
                     </t-form-item>
 
-                    <view class="grid grid-cols-2 gap-4">
+                    <view class="grid grid-cols-2 gap-3">
                         <t-form-item :label="t('cards.firstName')" name="firstName">
                             <t-input
                                 v-model:value="formData.firstName"
@@ -449,7 +449,7 @@ onLoad((options) => {
                         </t-form-item>
                     </view>
 
-                    <view class="grid grid-cols-2 gap-4">
+                    <view class="grid grid-cols-2 gap-3">
                         <t-form-item :label="t('cards.amount')" :help="tipsContent" name="amount">
                             <t-input
                                 v-model:value="formData.amount"
@@ -475,7 +475,7 @@ onLoad((options) => {
                         </t-form-item>
                     </view>
 
-                    <view class="grid grid-cols-2 gap-4">
+                    <view class="grid grid-cols-2 gap-3">
                         <t-form-item :label="t('cards.email')" name="email">
                             <t-input
                                 v-model:value="formData.email"
@@ -506,8 +506,8 @@ onLoad((options) => {
                     </t-form-item>
                 </view>
 
-                <view class="mt-2 bg-white px-4 py-4">
-                    <view class="text-sm text-gray-500">
+                <view class="mt-3 rounded-2xl bg-white px-3 py-3">
+                    <view class="text-sm text-secondary">
                         {{ t('cards.addressInfo') }}
                     </view>
                     <t-form-item :label="t('cards.billingAddress')" name="billingAddress">
@@ -526,7 +526,7 @@ onLoad((options) => {
                         />
                     </t-form-item>
 
-                    <view class="grid grid-cols-2 gap-4">
+                    <view class="grid grid-cols-2 gap-3">
                         <t-form-item :label="t('cards.city')" name="city">
                             <t-input
                                 v-model:value="formData.city"
@@ -556,10 +556,9 @@ onLoad((options) => {
                     </t-form-item>
                 </view>
 
-                <view class="mt-2 bg-white pr-4">
+                <view class="mt-3 overflow-hidden rounded-2xl bg-white pr-4">
                     <t-checkbox-group v-model:value="agreementValue">
                         <t-checkbox
-                            icon="rectangle"
                             :max-label-row="5"
                             value="1"
                         >
@@ -569,16 +568,13 @@ onLoad((options) => {
                                 </text>
                             </template>
                         </t-checkbox>
-                        <t-checkbox
-                            icon="rectangle"
-                            value="2"
-                        >
+                        <t-checkbox value="2">
                             <template #label>
                                 <view class="inline">
                                     <text class="mr-2">{{ t('cards.readAndAgree') }}</text>
                                     <t-link
                                         class="inline-block"
-                                        t-class-content="font-bold!"
+                                        t-class-content="font-medium!"
                                         theme="primary"
                                         :content="t('cards.feeSchedule')"
                                         :navigator-props="{ url: '/pages/fee/index' }"
@@ -591,23 +587,23 @@ onLoad((options) => {
                     </t-checkbox-group>
                 </view>
 
-                <view class="mt-2 bg-white px-4 py-4">
+                <view class="mt-3 rounded-2xl bg-white px-4 py-4">
                     <view>
-                        <text class="font-bold">{{ t('common.tips') }}{{ t('common.colon') }}</text>
+                        <text class="font-medium">{{ t('common.tips') }}{{ t('common.colon') }}</text>
                     </view>
                     <t-divider />
                     <view class="leading-relaxed">
                         <view class="flex">
                             <text class="w-5">1.</text>
                             <text>
-                                <text class="font-bold">{{ t('cards.cardCreationFeeTitle') }}{{ t('common.colon') }}</text>
+                                <text class="font-medium">{{ t('cards.cardCreationFeeTitle') }}{{ t('common.colon') }}</text>
                                 {{ t('cards.cardCreationFee', { amount: currentCardFee }) }}
                             </text>
                         </view>
                         <view class="mt-2 flex">
                             <text class="w-5">2.</text>
                             <text class="flex-1">
-                                <text class="font-bold">{{ t('cards.cardDeletionRuleTitle') }}{{ t('common.colon') }}</text>
+                                <text class="font-medium">{{ t('cards.cardDeletionRuleTitle') }}{{ t('common.colon') }}</text>
                                 {{ t('cards.cardDeletionRule') }}
                             </text>
                         </view>
@@ -615,7 +611,7 @@ onLoad((options) => {
                             <text class="w-5">3.</text>
                             <view class="inline flex-1">
                                 <text>
-                                    <text class="font-bold">{{ t('cards.foreignTransactionFeeTitle') }}{{ t('common.colon') }}</text>
+                                    <text class="font-medium">{{ t('cards.foreignTransactionFeeTitle') }}{{ t('common.colon') }}</text>
                                     {{ t('cards.foreignTransactionFee', { amount: currentOverseasTransactionFee }) }}
                                 </text>
                                 <t-icon
@@ -786,7 +782,7 @@ onLoad((options) => {
 <style lang="scss" scoped>
 .card {
     position: relative;
-    border-radius: 4rpx;
+    border-radius: var(--td-radius-default);
     overflow: hidden;
     box-sizing: border-box;
     border: 3rpx solid var(--td-bg-color-container, #fff);
@@ -803,7 +799,7 @@ onLoad((options) => {
     left: 0;
     top: 0;
     width: 0;
-    border-width: 28px 28px 28px 0;
+    border-width: 60rpx 60rpx 60rpx 0;
     border-style: solid;
     border-color: var(--td-brand-color, #0052d9) transparent transparent transparent;
 }
@@ -829,7 +825,7 @@ onLoad((options) => {
     box-sizing: border-box;
     margin-top: 10rpx;
     background-color: var(--td-bg-color-page);
-    border-radius: 4rpx;
+    border-radius: var(--td-radius-small);
     padding: 20rpx 20rpx 20rpx 24rpx;
 }
 

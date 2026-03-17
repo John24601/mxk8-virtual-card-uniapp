@@ -99,6 +99,8 @@ export default defineConfig({
         colors: {
             /** 主题色，用法如: text-primary */
             primary: 'var(--td-brand-color)',
+            secondary: 'var(--td-text-color-secondary)',
+            placeholder: 'var(--td-text-color-placeholder)',
             page: 'var(--td-bg-color-page)',
             container: 'var(--td-bg-color-container)',
             success: 'var(--td-success-color)',

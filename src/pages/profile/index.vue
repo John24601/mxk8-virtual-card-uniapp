@@ -1,9 +1,6 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
 import { t } from '@/locale'
-import { useTokenStore } from '@/store/token'
 import { useUserStore } from '@/store/user'
-import { toLoginPage } from '@/utils/toLoginPage'
 
 defineOptions({
     name: 'Profile',
@@ -11,6 +8,7 @@ defineOptions({
 definePage({
     style: {
         navigationStyle: 'custom',
+
     },
 })
 
@@ -35,34 +33,8 @@ const displayName = computed(() => {
     return u.id || ''
 })
 
-const logoutLoading = ref(false)
-
 function handleComingSoon() {
     uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
-}
-
-async function handleLogout() {
-    const confirmed = await new Promise<boolean>((resolve) => {
-        uni.showModal({
-            title: t('profile.logoutConfirmTitle'),
-            content: t('profile.logoutConfirmContent'),
-            cancelText: t('common.cancel'),
-            confirmText: t('common.confirm'),
-            success: res => resolve(res.confirm),
-            fail: () => resolve(false),
-        })
-    })
-    if (!confirmed)
-        return
-    logoutLoading.value = true
-    try {
-        const tokenStore = useTokenStore()
-        await tokenStore.logout()
-        toLoginPage({ mode: 'reLaunch' })
-    }
-    finally {
-        logoutLoading.value = false
-    }
 }
 
 function handleSettings() {
@@ -77,54 +49,41 @@ const menuItems = [
 </script>
 
 <template>
-    <view class="profile-container box-border min-h-100vh flex flex-col bg-white pb-tabbar">
+    <view class="box-border min-h-100vh flex flex-col bg-page pb-tabbar">
         <t-navbar :title="t('profile.title')" placeholder :custom-style="{ '--td-navbar-background': 'transparent' }" />
 
         <!-- 用户信息区：渐变背景 + 头像 + 昵称 -->
-        <view class="user-card flex flex-col items-center justify-center px-6 py-8">
-            <!-- <t-image
-                :src="avatarUrl"
-                width="72"
-                height="72"
-                shape="circle"
-            /> -->
+        <view class="flex flex-col items-center justify-center px-6 py-8">
             <t-avatar size="large" t-class-content="external-class-content">
                 {{ displayName.charAt(0) }}
             </t-avatar>
-            <text class="mt-4 text-lg text-gray-900">{{ displayName || t('profile.nicknamePlaceholder') }}</text>
+            <text class="mt-4 text-lg">{{ displayName || t('profile.nicknamePlaceholder') }}</text>
         </view>
 
-        <view class="flex flex-col px-2">
-            <view class="flex flex-col gap-2">
-                <t-button
-                    v-for="item in menuItems"
+        <view class="mx-4 flex flex-col">
+            <view class="flex flex-col overflow-hidden rounded-2xl bg-container py-2">
+                <view
+                    v-for="(item, index) in menuItems"
                     :key="item.key"
-                    theme="primary"
-                    variant="text"
-                    :icon="item.icon"
-                    t-class="justify-start! gap-2"
-                    block
-                    :open-type="item.openType"
-                    @click="item.onClick"
                 >
-                    {{ t(item.labelKey) }}
-                </t-button>
-            </view>
+                    <t-button
+                        :icon="item.icon"
+                        variant="text"
+                        t-class="justify-start! gap-2"
+                        block
+                        :open-type="item.openType"
+                        @click="item.onClick"
+                    >
+                        {{ t(item.labelKey) }}
+                    </t-button>
 
-            <view class="px-4">
-                <t-divider />
+                    <view v-if="index !== menuItems.length - 1" class="pl-11">
+                        <t-divider
+                            :custom-style="{ '--td-divider-horizontal-margin': '16rpx' }"
+                        />
+                    </view>
+                </view>
             </view>
-
-            <t-button
-                theme="danger"
-                variant="text"
-                icon="logout"
-                t-class="justify-start! gap-2"
-                block
-                @click="handleLogout"
-            >
-                {{ t('profile.logout') }}
-            </t-button>
         </view>
     </view>
 </template>

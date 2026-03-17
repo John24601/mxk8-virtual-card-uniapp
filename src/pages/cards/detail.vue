@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ICardDetailRes, ICardTransactionRecord } from '@/api/types/cards'
+import currency from 'currency.js'
 import { changeCardStatus, getCardByToken, getCardTransactionActivity } from '@/api/pay/cards'
 import { t } from '@/locale'
 import { systemInfo } from '@/utils/systemInfo'
@@ -211,7 +212,7 @@ onLoad((options) => {
                 :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
             >
                 <!-- 卡片信息块：与列表页同结构同样式 -->
-                <view v-if="cardDetail" class="card-block mx-2 mt-2 overflow-hidden rounded-2xl">
+                <view v-if="cardDetail" class="card-block mx-4 mt-3 overflow-hidden rounded-2xl">
                     <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
                         <view class="flex items-center justify-between">
                             <view class="flex items-center gap-2">
@@ -255,14 +256,14 @@ onLoad((options) => {
             </t-skeleton>
 
             <!-- 该卡交易记录 -->
-            <view class="mx-2 mt-2 rounded-sm bg-white py-4">
+            <view class="mx-4 mt-3 rounded-2xl bg-white py-4">
                 <view class="flex items-center justify-between px-4 pb-2">
-                    <text class="text-base text-gray-900 font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
+                    <text class="font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
                     <text
                         class="text-sm text-primary"
                         @click="goViewAllTx"
                     >
-                        {{ t('pages.cards.viewAll') }}
+                        {{ t('common.seeAll') }}
                     </text>
                 </view>
 
@@ -275,24 +276,24 @@ onLoad((options) => {
                         class="px-4"
                     >
                         <view
-                            class="flex items-center justify-between py-3"
+                            class="flex items-center justify-between gap-3 py-2"
                         >
                             <view class="min-w-0 flex-1">
-                                <text class="block text-sm text-gray-900 font-medium">{{ txTypeLabel(tx) }} · {{ tx.merchantName || '—' }}</text>
-                                <text class="mt-1 block text-xs text-gray-500">{{ tx.transactionTime }}</text>
+                                <text class="block truncate font-medium">{{ tx.merchantName || '--' }}</text>
+                                <text class="mt-1 block text-xs text-placeholder">{{ tx.transactionTime }} (UTC)</text>
                             </view>
                             <view class="flex flex-col items-end">
-                                <text
-                                    class="text-sm font-medium"
-                                    :class="formatTxAmount(tx).startsWith('+') ? 'text-green-600' : 'text-gray-900'"
-                                >
-                                    {{ formatTxAmount(tx) }}
+                                <text class="text-warning font-medium">
+                                    {{ currency(tx.transactionAmount).format({ symbol: tx.currencyCode === 'USD' ? '$' : `(${tx.currencyCode})` }) }}
                                 </text>
                                 <text
                                     class="mt-1 text-xs"
-                                    :class="isTxSuccess(tx) ? 'text-green-600' : 'text-gray-500'"
+                                    :class="[
+                                        tx.transactionStatusName === 'Approved' && 'text-success',
+                                        tx.transactionStatusName === 'Declined' && 'text-error',
+                                    ]"
                                 >
-                                    {{ isTxSuccess(tx) ? t('home.statusSuccess') : t('home.statusFailed') }}
+                                    {{ tx.transactionStatusName }}
                                 </text>
                             </view>
                         </view>

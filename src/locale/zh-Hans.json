@@ -1,8 +1,7 @@
 {
     "home.title": "首页",
-    "home.availableBalance": "可用余额",
-    "home.availableBalanceUnit": "可用余额 (USD)",
-    "home.cardTotalBalance": "卡片总余额",
+    "home.availableBalanceUnit": "可用余额",
+    "home.cardTotalBalance": "总余额",
     "home.usedLimit": "已用额度",
     "home.income": "收入",
     "home.expense": "支出",

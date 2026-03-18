@@ -275,12 +275,12 @@ function goBillsList() {
                 </view>
                 <!-- <t-divider :custom-style="{ '--td-divider-horizontal-margin': '30rpx' }" /> -->
                 <view v-if="loadingBills" class="py-8 text-center text-sm text-gray-400">
-                    加载中…
+                    Loading...
                 </view>
                 <view v-else-if="recentBills.length === 0" class="py-8 text-center text-sm text-gray-400">
-                    暂无交易
+                    No data yet
                 </view>
-                <view v-else class="flex flex-col gap-3">
+                <view v-else class="flex flex-col gap-2">
                     <navigator
                         v-for="item in recentBills"
                         :key="item.id"

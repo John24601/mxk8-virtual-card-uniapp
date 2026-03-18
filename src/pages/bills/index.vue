@@ -92,13 +92,16 @@ onShow(() => {
         </template> -->
 
         <view class="px-4 py-3">
-            <view class="flex flex-col rounded-2xl bg-container p-4">
+            <view class="flex flex-col gap-2">
                 <view
-                    v-for="(item, index) in list"
+                    v-for="item in list"
                     :key="item.id"
                     @click="goDetail(item)"
                 >
-                    <view class="flex items-start justify-between gap-4">
+                    <navigator
+                        :url="`/pages/bills/detail?id=${item.id}`"
+                        class="flex items-start justify-between gap-4 overflow-hidden rounded-2xl bg-container p-4"
+                    >
                         <view class="min-w-0 flex-1">
                             <text class="block truncate font-medium">
                                 {{ item.merchantName || '--' }}
@@ -113,7 +116,7 @@ onShow(() => {
                         </view>
 
                         <view class="flex flex-col items-end">
-                            <text class="shrink-0 text-warning font-semibold">
+                            <text class="shrink-0 font-semibold">
                                 {{ currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` }) }}
                             </text>
 
@@ -127,9 +130,7 @@ onShow(() => {
                                 {{ item.transactionStatusName }}
                             </text>
                         </view>
-                    </view>
-
-                    <t-divider v-if="index !== list.length - 1" :custom-style="{ '--td-divider-horizontal-margin': '30rpx' }" />
+                    </navigator>
                 </view>
             </view>
         </view>

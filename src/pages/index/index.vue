@@ -167,7 +167,7 @@ function goBillsList() {
             </t-navbar>
 
             <!-- 余额区：毛玻璃蓝色卡片 -->
-            <view class="home-glass-card mx-4 mt-4 rounded-2xl from-gray-800 to-gray-900 bg-gradient-to-br px-6 py-6">
+            <view class="home-glass-card mx-4 mt-4 rounded-2xl from-[var(--td-brand-color-6)] to-[var(--td-brand-color-9)] bg-gradient-to-br px-6 py-6">
                 <view class="flex items-center justify-between">
                     <text class="text-sm text-white opacity-80">{{ t('home.availableBalanceUnit') }}</text>
                     <t-icon
@@ -281,33 +281,18 @@ function goBillsList() {
                     No data yet
                 </view>
                 <view v-else class="flex flex-col gap-2">
-                    <navigator
+                    <fg-card-transaction-item
                         v-for="item in recentBills"
                         :key="item.id"
-                        url="/pages/bills/index"
-                        class="home-glass-panel flex items-start justify-between gap-4 rounded-2xl bg-container px-4 py-4"
-                    >
-                        <view class="min-w-0 flex-1">
-                            <text class="block truncate font-medium">{{ item.merchantName || '--' }}</text>
-                            <text class="mt-1 block text-xs text-[var(--td-text-color-placeholder)]">{{ item.transactionTime }} (UTC)</text>
-                        </view>
-                        <view class="flex flex-col items-end gap-0.5">
-                            <text
-                                class="font-medium"
-                            >
-                                {{ currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` }) }}
-                            </text>
-                            <text
-                                class="mt-1 text-xs"
-                                :class="[
-                                    item.transactionStatusName === 'Approved' && 'text-success',
-                                    item.transactionStatusName === 'Declined' && 'text-error',
-                                ]"
-                            >
-                                {{ item.transactionStatusName }}
-                            </text>
-                        </view>
-                    </navigator>
+                        :url="`/pages/bills/detail?id=${item.id}`"
+                        :title="item.merchantName"
+                        :card-name="item.cardName"
+                        :card-number="`${item.cardBin} **** ${item.cardNumber}`"
+                        :time="`${item.transactionTime} (UTC)`"
+                        :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
+                        :status="item.transactionStatusName"
+                        class="home-glass-panel"
+                    />
                 </view>
             </view>
         </view>
@@ -331,14 +316,14 @@ function goBillsList() {
 .home-glass-card {
     // backdrop-filter: blur(12px);
     // -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8rpx 48rpx rgba(0, 0, 0, 0.25);
 }
 
 .home-glass-panel {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(24rpx);
+    -webkit-backdrop-filter: blur(24rpx);
     background: rgba(255, 255, 255, 0.65);
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4rpx 32rpx rgba(0, 0, 0, 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -353,7 +338,7 @@ function goBillsList() {
 
     .home-glass-panel {
         background: rgba(42, 42, 42, 0.6);
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4rpx 32rpx rgba(0, 0, 0, 0.2);
     }
 }
 

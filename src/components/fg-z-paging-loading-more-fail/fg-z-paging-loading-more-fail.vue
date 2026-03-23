@@ -9,7 +9,7 @@ const loadingMoreFailText = computed(() => uni.$zp.config['loading-more-fail-tex
 </script>
 
 <template>
-    <view class="px-4 pb-tabbar">
+    <view class="px-10 pb-tabbar">
         <t-divider :content="loadingMoreFailText" />
     </view>
 </template>

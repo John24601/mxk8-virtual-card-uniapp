@@ -127,13 +127,21 @@ onShow(() => {
                         {{ currency(cardAll?.availableAmount ?? 0).format() }}
                     </text>
                 </view>
-                <t-button
-                    theme="primary"
-                    icon="add"
-                    shape="circle"
-                    t-class="m-0!"
-                    @click="goCreate"
-                />
+
+                <view class="flex items-center gap-2">
+                    <t-button
+                        theme="primary"
+                        icon="add"
+                        shape="circle"
+                        @click="goCreate"
+                    />
+
+                    <t-button
+                        variant="outline"
+                        icon="search"
+                        shape="circle"
+                    />
+                </view>
             </view>
         </template>
 
@@ -153,10 +161,54 @@ onShow(() => {
             <view
                 v-for="card in userCards"
                 :key="card.id"
+            >
+                <t-swipe-cell
+                    :custom-style="{
+                        overflow: 'hidden',
+                        borderRadius: '21px',
+                        boxShadow: '0 8rpx 16rpx rgba(0, 0, 0, 0.1)',
+                    }"
+                >
+                    <fg-master-card-viewer v-if="card.cardBin.startsWith('5')" />
+                    <fg-virtual-card-viewer v-else />
+
+                    <template #right>
+                        <view class="box-border h-full w-25 flex flex-col gap-2 p-2 text-white" :style="{ '--td-button-medium-height': '100%' }">
+                            <view class="flex-1">
+                                <t-button
+                                    block
+                                    icon="wallet"
+                                    theme="primary"
+                                    t-class="flex-col! gap-2"
+                                    :disabled="card.status === 1"
+                                    @click="onTopUp(card)"
+                                >
+                                    {{ t('pages.cards.topUp') }}
+                                </t-button>
+                            </view>
+                            <view class="flex-1">
+                                <t-button
+                                    block
+                                    :theme="card.status === 0 ? 'danger' : 'primary'"
+                                    :loading="changingId === card.id"
+                                    :icon="changingId === card.id ? null : 'slash'"
+                                    t-class="flex-col! gap-2"
+                                    @click="onToggleStatus(card)"
+                                >
+                                    {{ card.status === 0 ? t('pages.cards.disable') : t('pages.cards.activate') }}
+                                </t-button>
+                            </view>
+                        </view>
+                    </template>
+                </t-swipe-cell>
+            </view>
+
+            <!-- <view
+                v-for="card in userCards"
+                :key="card.id"
                 class="card-block overflow-hidden rounded-2xl bg-white"
             >
-                <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
-                    <!-- 头部：类型 + 状态 -->
+                <view class="from-[var(--td-brand-color-6)] to-[var(--td-brand-color-9)] bg-gradient-to-br p-5 text-white">
                     <view class="flex items-center justify-between">
                         <view class="flex items-center gap-2">
                             <t-icon name="creditcard" size="40rpx" class="text-white opacity-90" />
@@ -170,16 +222,14 @@ onShow(() => {
                         </view>
                         <view
                             class="rounded-full px-3 py-1 text-xs font-medium"
-                            :class="card.status === 0 ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'"
+                            :class="card.status === 0 ? 'bg-green-100/40 text-green-700' : 'bg-red-100/40 text-red-700'"
                         >
                             {{ card.status === 0 ? t('pages.cards.statusNormal') : t('pages.cards.statusDisabled') }}
                         </view>
                     </view>
-                    <!-- 卡号 -->
                     <text class="mt-4 block text-2xl font-semibold tracking-widest opacity-95">
                         {{ displayMaskedCardNumber(card) }}
                     </text>
-                    <!-- 额度：后端为 availableAmount / limitAmount -->
                     <view class="grid grid-cols-2 mt-4 gap-3">
                         <view class="min-w-0 flex flex-col">
                             <text class="text-xs opacity-75">{{ t('pages.cards.cardName') }}</text>
@@ -196,7 +246,6 @@ onShow(() => {
                     </view>
                 </view>
 
-                <!-- 底部三按钮 -->
                 <view class="grid grid-cols-3 gap-3 p-4">
                     <view>
                         <t-button
@@ -234,7 +283,7 @@ onShow(() => {
                         </t-button>
                     </view>
                 </view>
-            </view>
+            </view> -->
         </view>
 
         <template #loadingMoreDefault>
@@ -260,5 +309,9 @@ onShow(() => {
     box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+:deep(.t-button__content:not(:empty)) {
+    margin-left: 0 !important;
 }
 </style>

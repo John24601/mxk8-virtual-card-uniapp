@@ -54,7 +54,12 @@ onShow(() => {
             shape="round"
             theme="tag"
             :split="false"
-            :custom-style="{ bottom: tabBarBottom }"
+            :custom-style="{
+                '--td-tab-bar-bg-color': 'rgba(255, 255, 255, 0.65)',
+                'backdrop-filter': 'blur(24rpx)',
+                '-webkit-backdrop-filter': 'blur(24rpx)',
+                'bottom': tabBarBottom,
+            }"
             @change="onChange"
         >
             <t-tab-bar-item

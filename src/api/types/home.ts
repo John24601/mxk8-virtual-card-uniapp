@@ -56,7 +56,7 @@ export interface IBillRecord {
     transactionType: number
     transactionStatus: boolean
     transactionTypeName: string
-    transactionStatusName: string
+    transactionStatusName: 'Approved' | 'Declined' | 'Pending' | 'Failed' | 'Completed'
     isShowTypeColour: boolean
     isShowStatusColour: boolean
     realTime: string | null

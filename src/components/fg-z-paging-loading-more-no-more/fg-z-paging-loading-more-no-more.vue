@@ -9,7 +9,7 @@ const loadingMoreNoMoreText = computed(() => uni.$zp.config['loading-more-no-mor
 </script>
 
 <template>
-    <view class="px-4 pb-tabbar">
+    <view class="px-10 pb-tabbar">
         <t-divider :content="loadingMoreNoMoreText" />
     </view>
 </template>

@@ -12,12 +12,6 @@ definePage({
     },
 })
 
-const avatarUrl = computed(() => {
-    const userStore = useUserStore()
-    const url = userStore.userInfo?.avatar
-    return url || '/static/images/default-avatar.png'
-})
-
 const displayName = computed(() => {
     const userStore = useUserStore()
     const u = userStore.userInfo
@@ -49,7 +43,7 @@ const menuItems = [
 </script>
 
 <template>
-    <view class="box-border min-h-100vh flex flex-col bg-page pb-tabbar">
+    <view class="profile-page box-border min-h-100vh flex flex-col bg-page pb-tabbar">
         <t-navbar :title="t('profile.title')" placeholder :custom-style="{ '--td-navbar-background': 'transparent' }" />
 
         <!-- 用户信息区：渐变背景 + 头像 + 昵称 -->
@@ -61,9 +55,9 @@ const menuItems = [
         </view>
 
         <view class="mx-4 flex flex-col">
-            <view class="flex flex-col overflow-hidden rounded-2xl bg-container py-2">
+            <view class="flex flex-col gap-2">
                 <view
-                    v-for="(item, index) in menuItems"
+                    v-for="item in menuItems"
                     :key="item.key"
                 >
                     <t-button
@@ -76,12 +70,6 @@ const menuItems = [
                     >
                         {{ t(item.labelKey) }}
                     </t-button>
-
-                    <view v-if="index !== menuItems.length - 1" class="pl-11">
-                        <t-divider
-                            :custom-style="{ '--td-divider-horizontal-margin': '16rpx' }"
-                        />
-                    </view>
                 </view>
             </view>
         </view>
@@ -89,8 +77,12 @@ const menuItems = [
 </template>
 
 <style lang="scss" scoped>
-.bg-gradient-user {
-    background: linear-gradient(135deg, #e0f2ff 0%, #fef3e0 100%);
+.profile-page {
+    background:
+        radial-gradient(ellipse 70% 60% at 10% 10%, rgba(0, 82, 217, 0.18), transparent 60%),
+        radial-gradient(ellipse 55% 50% at 90% 25%, rgba(54, 110, 244, 0.14), transparent 55%),
+        radial-gradient(ellipse 60% 70% at 50% 85%, rgba(0, 136, 88, 0.12), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 75% 70%, rgba(94, 129, 244, 0.1), transparent 50%), var(--td-bg-color-page);
 }
 
 :deep(.external-class-content) {

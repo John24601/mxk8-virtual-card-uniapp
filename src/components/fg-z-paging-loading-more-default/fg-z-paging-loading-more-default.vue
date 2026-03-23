@@ -17,7 +17,7 @@ function onLoadMore() {
 </script>
 
 <template>
-    <view class="px-4 pb-tabbar" @click="onLoadMore">
+    <view class="px-10 pb-tabbar" @click="onLoadMore">
         <t-divider :content="loadingMoreDefaultText" />
     </view>
 </template>

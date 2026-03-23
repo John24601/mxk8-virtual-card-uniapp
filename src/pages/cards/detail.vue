@@ -85,33 +85,6 @@ function goViewAllTx() {
     })
 }
 
-/** 交易金额展示：支出负、收入正 */
-function formatTxAmount(tx: ICardTransactionRecord): string {
-    const n = typeof tx.transactionAmount === 'string'
-        ? Number.parseFloat(tx.transactionAmount) || 0
-        : Number(tx.transactionAmount) || 0
-    const absStr = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    return n >= 0 ? `+${absStr}` : `-${absStr}`
-}
-
-/** 是否成功：后端 status/transactionStatusName 为 Completed 等视为成功 */
-function isTxSuccess(tx: ICardTransactionRecord): boolean {
-    const s = (tx.status || tx.transactionStatusName || '').toLowerCase()
-    if (/completed|success|approved|成功/.test(s))
-        return true
-    if (typeof tx.transactionStatus === 'boolean')
-        return tx.transactionStatus
-    return false
-}
-
-/** 交易类型/描述：优先 type 或 transactionTypeName，再 merchantName */
-function txTypeLabel(tx: ICardTransactionRecord): string {
-    const t = (tx.type || tx.transactionTypeName || '').trim()
-    if (t)
-        return t
-    return tx.merchantName || '—'
-}
-
 /** 持卡人姓名：firstName + lastName */
 function cardHolderName(card: ICardDetailRes): string {
     const first = (card.firstName || '').trim()
@@ -211,8 +184,42 @@ onLoad((options) => {
                 :row-col="[{ width: '100%', height: '380rpx', type: 'rect' }]"
                 :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
             >
+                <t-swipe-cell
+                    t-class="mx-4 mt-4"
+                    :custom-style="{
+                        overflow: 'hidden',
+                        borderRadius: '21px',
+                        boxShadow: '0 8rpx 16rpx rgba(0, 0, 0, 0.1)',
+                    }"
+                >
+                    <view>
+                        <image
+                            src="/static/images/master_card_bg.png"
+                            mode="widthFix"
+                            class="block w-full"
+                        />
+                    </view>
+                    <template #right>
+                        <view class="box-border h-full w-25 flex flex-col gap-2 p-2 text-white">
+                            <view class="center flex-1 rounded-2xl bg-primary">
+                                {{ t('pages.cards.topUp') }}
+                            </view>
+                            <view class="center flex-1 rounded-2xl bg-error">
+                                {{ t('pages.cards.disable') }}
+                            </view>
+                            <!-- <t-button
+                                block
+                                theme="light"
+                                shape="round"
+                                t-class="m-0!"
+                            >
+                                删除
+                            </t-button> -->
+                        </view>
+                    </template>
+                </t-swipe-cell>
                 <!-- 卡片信息块：与列表页同结构同样式 -->
-                <view v-if="cardDetail" class="card-block mx-4 mt-3 overflow-hidden rounded-2xl">
+                <!-- <view v-if="cardDetail" class="card-block mx-4 mt-3 overflow-hidden rounded-2xl">
                     <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
                         <view class="flex items-center justify-between">
                             <view class="flex items-center gap-2">
@@ -252,54 +259,34 @@ onLoad((options) => {
                             </view>
                         </view>
                     </view>
-                </view>
+                </view> -->
             </t-skeleton>
 
             <!-- 该卡交易记录 -->
-            <view class="mx-4 mt-3 rounded-2xl bg-white py-4">
-                <view class="flex items-center justify-between px-4 pb-2">
-                    <text class="font-semibold">{{ t('pages.cards.cardTransactions') }}</text>
-                    <text
-                        class="text-sm text-primary"
+            <view class="mx-4 mt-6">
+                <view class="mb-3 flex items-center justify-between pl-2">
+                    <text class="font-bold">{{ t('pages.cards.cardTransactions') }}</text>
+                    <t-button
+                        theme="light"
+                        shape="round"
+                        size="extra-small"
+                        t-class="m-0!"
                         @click="goViewAllTx"
                     >
-                        {{ t('common.seeAll') }}
-                    </text>
+                        {{ t('home.viewAll') }}
+                    </t-button>
                 </view>
 
-                <t-divider />
-
-                <view class="flex flex-col">
-                    <view
-                        v-for="(tx, index) in txList"
-                        :key="tx.id"
-                        class="px-4"
-                    >
-                        <view
-                            class="flex items-center justify-between gap-3 py-2"
-                        >
-                            <view class="min-w-0 flex-1">
-                                <text class="block truncate font-medium">{{ tx.merchantName || '--' }}</text>
-                                <text class="mt-1 block text-xs text-placeholder">{{ tx.transactionTime }} (UTC)</text>
-                            </view>
-                            <view class="flex flex-col items-end">
-                                <text class="text-warning font-medium">
-                                    {{ currency(tx.transactionAmount).format({ symbol: tx.currencyCode === 'USD' ? '$' : `(${tx.currencyCode})` }) }}
-                                </text>
-                                <text
-                                    class="mt-1 text-xs"
-                                    :class="[
-                                        tx.transactionStatusName === 'Approved' && 'text-success',
-                                        tx.transactionStatusName === 'Declined' && 'text-error',
-                                    ]"
-                                >
-                                    {{ tx.transactionStatusName }}
-                                </text>
-                            </view>
-                        </view>
-
-                        <t-divider v-if="index !== txList.length - 1" />
-                    </view>
+                <view class="flex flex-col gap-2">
+                    <fg-card-transaction-item
+                        v-for="item in txList"
+                        :key="item.id"
+                        :url="`/pages/bills/detail?id=${item.id}`"
+                        :title="item.merchantName"
+                        :time="`${item.transactionTime} (UTC)`"
+                        :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
+                        :status="item.transactionStatusName"
+                    />
                 </view>
             </view>
         </view>

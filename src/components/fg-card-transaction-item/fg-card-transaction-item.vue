@@ -8,7 +8,8 @@ interface Props {
     cardNumber?: string
     time?: string
     amount?: string
-    status?: IBillRecord['transactionStatusName']
+    status?: IBillRecord['status']
+    statusName?: string
 }
 
 defineOptions({
@@ -24,9 +25,9 @@ defineProps<Props>()
 <template>
     <navigator
         :url="url"
-        class="flex items-start justify-between gap-4 overflow-hidden rounded-2xl bg-container p-4"
+        class="flex items-start gap-2 overflow-hidden rounded-2xl bg-container p-4"
     >
-        <view class="min-w-0 flex-1">
+        <view class="w-0 flex-1">
             <text class="block truncate font-medium">
                 {{ title || '--' }}
             </text>
@@ -39,19 +40,19 @@ defineProps<Props>()
             </text>
         </view>
 
-        <view class="flex flex-col items-end">
+        <view class="w-1/4 flex flex-col items-end">
             <text class="shrink-0 font-semibold">
                 {{ amount }}
             </text>
 
             <text
-                class="mt-1 text-xs"
+                class="mt-1 text-right text-xs"
                 :class="[
-                    ['Approved', 'Completed'].includes(status) && 'text-success',
-                    status === 'Declined' && 'text-error',
+                    ['PENDING', 'COMPLETED'].includes(status) && 'text-success',
+                    status === 'DECLINED' && 'text-error',
                 ]"
             >
-                {{ status }}
+                {{ statusName }}
             </text>
         </view>
     </navigator>

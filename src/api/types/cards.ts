@@ -179,7 +179,7 @@ export interface ICardTransactionRecord {
     cardBin: string | null
     createTime: string | null
     /** 如 "Completed" */
-    status: string
+    status: 'DECLINED' | 'PENDING' | 'COMPLETED'
     merchantName: string
     merchantAddress: string | null
     transactionAmount: string
@@ -194,7 +194,7 @@ export interface ICardTransactionRecord {
     transactionType: number
     transactionStatus: boolean
     transactionTypeName: string
-    transactionStatusName: 'Approved' | 'Declined' | 'Pending' | 'Failed' | 'Completed'
+    transactionStatusName: 'PENDING' | 'COMPLETED' | 'DECLINED'
     isShowTypeColour: boolean
     isShowStatusColour: boolean
     realTime: string | null

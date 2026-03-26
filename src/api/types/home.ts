@@ -40,7 +40,7 @@ export interface IBillRecord {
     cardBin: string
     createTime: string
     /** 如 "PENDING" | "COMPLETED" */
-    status: string
+    status: 'DECLINED' | 'PENDING' | 'COMPLETED'
     merchantName: string | null
     merchantAddress: string | null
     /** 交易金额，后端返回 string 如 "20.0" */
@@ -56,7 +56,7 @@ export interface IBillRecord {
     transactionType: number
     transactionStatus: boolean
     transactionTypeName: string
-    transactionStatusName: 'Approved' | 'Declined' | 'Pending' | 'Failed' | 'Completed'
+    transactionStatusName: string
     isShowTypeColour: boolean
     isShowStatusColour: boolean
     realTime: string | null

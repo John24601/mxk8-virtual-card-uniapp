@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ICardAllSummary, ICardRecord } from '@/api/types/cards'
 import currency from 'currency.js'
+import dayjs from 'dayjs'
 import { changeCardStatus, getCardList } from '@/api/pay/cards'
 import { t } from '@/locale'
 
@@ -76,6 +77,7 @@ function goCreate() {
 }
 
 function goDetail(card: ICardRecord) {
+    console.log('🚀 ~ goDetail ~ card:', card)
     const token = card.cardToken || card.id
     uni.navigateTo({ url: `/pages/cards/detail?cardToken=${encodeURIComponent(token)}` }).catch(() => {
         uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
@@ -107,6 +109,7 @@ async function onToggleStatus(card: ICardRecord) {
 
 onShow(() => {
     pagingRef.value?.updateFixedLayout?.()
+    pagingRef.value?.refresh()
 })
 </script>
 
@@ -161,16 +164,29 @@ onShow(() => {
             <view
                 v-for="card in userCards"
                 :key="card.id"
+                @click="goDetail(card)"
             >
                 <t-swipe-cell
                     :custom-style="{
                         overflow: 'hidden',
-                        borderRadius: '21px',
+                        borderRadius: '40rpx',
                         boxShadow: '0 8rpx 16rpx rgba(0, 0, 0, 0.1)',
                     }"
                 >
-                    <fg-master-card-viewer v-if="card.cardBin.startsWith('5')" />
-                    <fg-virtual-card-viewer v-else />
+                    <fg-master-card-viewer
+                        v-if="card.cardBin.startsWith('5')"
+                        :card-number="card.cardNumber"
+                        :expiration-date="card.endDate ? dayjs(card.endDate).format('MM/YY') : ''"
+                        :first-name="card.firstName"
+                        :last-name="card.lastName"
+                    />
+                    <fg-virtual-card-viewer
+                        v-else
+                        :card-number="card.cardNumber"
+                        :expiration-date="card.endDate ? dayjs(card.endDate).format('MM/YY') : ''"
+                        :first-name="card.firstName"
+                        :last-name="card.lastName"
+                    />
 
                     <template #right>
                         <view class="box-border h-full w-25 flex flex-col gap-2 p-2 text-white" :style="{ '--td-button-medium-height': '100%' }">

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ICardDetailRes, ICardTransactionRecord } from '@/api/types/cards'
 import currency from 'currency.js'
+import dayjs from 'dayjs'
 import { changeCardStatus, getCardByToken, getCardTransactionActivity } from '@/api/pay/cards'
 import { t } from '@/locale'
 import { systemInfo } from '@/utils/systemInfo'
@@ -80,9 +81,7 @@ function onTopUp() {
 }
 
 function goViewAllTx() {
-    uni.navigateTo({ url: `/pages/bills/list?cardToken=${encodeURIComponent(cardToken.value)}` }).catch(() => {
-        uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
-    })
+    uni.navigateTo({ url: `/pages/bills/index?cardToken=${encodeURIComponent(cardToken.value)}` })
 }
 
 /** 持卡人姓名：firstName + lastName */
@@ -184,86 +183,26 @@ onLoad((options) => {
                 :row-col="[{ width: '100%', height: '380rpx', type: 'rect' }]"
                 :custom-style="{ '--td-skeleton-rect-border-radius': '32rpx' }"
             >
-                <t-swipe-cell
-                    t-class="mx-4 mt-4"
-                    :custom-style="{
-                        overflow: 'hidden',
-                        borderRadius: '21px',
-                        boxShadow: '0 8rpx 16rpx rgba(0, 0, 0, 0.1)',
-                    }"
-                >
-                    <view>
-                        <image
-                            src="/static/images/master_card_bg.png"
-                            mode="widthFix"
-                            class="block w-full"
-                        />
-                    </view>
-                    <template #right>
-                        <view class="box-border h-full w-25 flex flex-col gap-2 p-2 text-white">
-                            <view class="center flex-1 rounded-2xl bg-primary">
-                                {{ t('pages.cards.topUp') }}
-                            </view>
-                            <view class="center flex-1 rounded-2xl bg-error">
-                                {{ t('pages.cards.disable') }}
-                            </view>
-                            <!-- <t-button
-                                block
-                                theme="light"
-                                shape="round"
-                                t-class="m-0!"
-                            >
-                                删除
-                            </t-button> -->
-                        </view>
-                    </template>
-                </t-swipe-cell>
-                <!-- 卡片信息块：与列表页同结构同样式 -->
-                <!-- <view v-if="cardDetail" class="card-block mx-4 mt-3 overflow-hidden rounded-2xl">
-                    <view class="from-gray-800 to-gray-900 bg-gradient-to-br p-5 text-white">
-                        <view class="flex items-center justify-between">
-                            <view class="flex items-center gap-2">
-                                <t-icon name="creditcard" size="40rpx" class="text-white opacity-90" />
-                                <text class="text-base font-medium opacity-95">{{ cardTypeLabel(cardDetail) }}</text>
-                                <view
-                                    v-if="cardDetail.isTrialCard"
-                                    class="rounded bg-amber-500/30 px-2 py-0.5 text-xs text-amber-200 font-medium"
-                                >
-                                    {{ t('pages.cards.trialCard') }}
-                                </view>
-                            </view>
-                            <view
-                                class="rounded-full px-3 py-1 text-xs font-medium"
-                                :class="cardDetail.status === 0 ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'"
-                            >
-                                {{ cardDetail.status === 0 ? t('pages.cards.statusNormal') : t('pages.cards.statusDisabled') }}
-                            </view>
-                        </view>
-                        <text class="mt-4 block text-2xl font-semibold tracking-widest opacity-95">
-                            {{ displayMaskedCardNumber(cardDetail) }}
-                        </text>
-                        <view class="grid grid-cols-3 mt-4 gap-3">
-                            <view class="min-w-0 flex flex-col">
-                                <text class="text-xs opacity-75">{{ t('pages.cards.cardName') }}</text>
-                                <text class="mt-1 block truncate text-lg font-medium">
-                                    {{ cardHolderName(cardDetail) }}
-                                </text>
-                            </view>
-                            <view class="flex flex-col items-center">
-                                <text class="text-xs opacity-75">{{ t('pages.cards.availableLimit') }}</text>
-                                <text class="mt-1 text-lg font-medium">{{ formatMoney(cardDetail.availableAmount) }}</text>
-                            </view>
-                            <view class="flex flex-col items-end">
-                                <text class="text-xs opacity-75">{{ t('pages.cards.expiryDate') }}</text>
-                                <text class="mt-1 text-lg font-medium">{{ formatExpireDate(cardDetail.expries) }}</text>
-                            </view>
-                        </view>
-                    </view>
-                </view> -->
+                <view v-if="cardDetail" class="card-block mx-4 mt-4 overflow-hidden" style="border-radius: 40rpx;">
+                    <fg-master-card-viewer
+                        v-if="cardDetail.cardBin.startsWith('5')"
+                        :card-number="cardDetail.cardNumber"
+                        :expiration-date="cardDetail.endDate ? dayjs(cardDetail.endDate).format('MM/YY') : ''"
+                        :first-name="cardDetail.firstName"
+                        :last-name="cardDetail.lastName"
+                    />
+                    <fg-virtual-card-viewer
+                        v-else
+                        :card-number="cardDetail.cardNumber"
+                        :expiration-date="cardDetail.endDate ? dayjs(cardDetail.endDate).format('MM/YY') : ''"
+                        :first-name="cardDetail.firstName"
+                        :last-name="cardDetail.lastName"
+                    />
+                </view>
             </t-skeleton>
 
             <!-- 该卡交易记录 -->
-            <view class="mx-4 mt-6">
+            <view class="mx-4 mb-6 mt-6">
                 <view class="mb-3 flex items-center justify-between pl-2">
                     <text class="font-bold">{{ t('pages.cards.cardTransactions') }}</text>
                     <t-button
@@ -283,16 +222,19 @@ onLoad((options) => {
                         :key="item.id"
                         :url="`/pages/bills/detail?id=${item.id}`"
                         :title="item.merchantName"
+                        :card-name="item.cardName"
+                        :card-number="`${item.cardBin} **** ${item.cardNumber}`"
                         :time="`${item.transactionTime} (UTC)`"
                         :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
-                        :status="item.transactionStatusName"
+                        :status="item.status"
+                        :status-name="item.transactionStatusName"
                     />
                 </view>
             </view>
         </view>
 
         <template #bottom>
-            <view class="grid grid-cols-3 mx-4 gap-3" :class="systemInfo.safeAreaInsets.bottom === 0 && 'pb-4'">
+            <view class="grid grid-cols-3 mx-4 gap-3 pt-3" :class="systemInfo.safeAreaInsets.bottom === 0 && 'pb-4'">
                 <view class="col-span-2">
                     <t-button
                         theme="primary"

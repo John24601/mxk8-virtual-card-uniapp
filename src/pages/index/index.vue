@@ -290,7 +290,8 @@ function goBillsList() {
                         :card-number="`${item.cardBin} **** ${item.cardNumber}`"
                         :time="`${item.transactionTime} (UTC)`"
                         :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
-                        :status="item.transactionStatusName"
+                        :status="item.status"
+                        :status-name="item.transactionStatusName"
                         class="home-glass-panel"
                     />
                 </view>

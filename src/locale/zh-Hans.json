@@ -173,5 +173,7 @@
     "pages.bills.filterAll": "全部",
     "pages.bills.filterIncome": "收入",
     "pages.bills.filterExpense": "支出",
-    "pages.bills.empty": "暂无交易记录"
+    "pages.bills.empty": "暂无交易记录",
+
+    "pages.billsDetail.title": "交易详情"
 }

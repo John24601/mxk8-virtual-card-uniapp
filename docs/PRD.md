@@ -178,7 +178,7 @@ TabBar 建议与业务对齐，例如：首页、卡片、我的。当前 tabbar
 | 接口说明   | 方法  | 路径                                       | 请求/响应要点                                                                                                                                                                                                                         |
 | ------ | --- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 交易记录列表 | GET | `/api-pay/sys_business_bill/list`        | Params: `current`, `pageSize`, `transactionType`（可选）。返回: `records[]`（`id`, `transactionAmount`, `transactionType`, `transactionTypeName`, `transactionStatus`, `transactionStatusName`, `merchantName`, `createTime`）, `total`。 |
-| 账单详情   | GET | `/api-pay/sys_business_bill/detail/{id}` | 返回: 账单详细信息。                                                                                                                                                                                                                     |
+| 账单详情   | GET | `/api-pay/sys_business_bill/getTransactionDetailedInfo` | Params: `id`。返回: 账单详细信息。                                                                                                                                                                                                                     |
 
 
 ### 5.6 首页模块

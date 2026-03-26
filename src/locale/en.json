@@ -173,5 +173,7 @@
     "pages.bills.filterAll": "All",
     "pages.bills.filterIncome": "Income",
     "pages.bills.filterExpense": "Expense",
-    "pages.bills.empty": "No transactions yet"
+    "pages.bills.empty": "No transactions yet",
+
+    "pages.billsDetail.title": "Transaction Details"
 }

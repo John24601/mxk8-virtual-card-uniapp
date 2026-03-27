@@ -18,6 +18,8 @@ definePage({
     },
 })
 
+const RECENT_SKELETON_COUNT = 2
+
 const balanceVisible = ref(true)
 const account = ref<IUserAccountRes | null>(null)
 const statsDay = ref<7 | 30 | 90>(7)
@@ -25,7 +27,9 @@ const fundStats = ref<IFundStatsRes | null>(null)
 const recentBills = ref<IBillRecord[]>([])
 const loading = ref(false)
 const loadingStats = ref(false)
-const loadingBills = ref(false)
+const loadingBills = ref(true)
+
+const loadingMoreNoMoreText = computed(() => uni.$zp.config['loading-more-no-more-text'][uni.getLocale()])
 
 const displayName = computed(() => {
     const userStore = useUserStore()
@@ -98,7 +102,7 @@ async function fetchStats() {
 async function fetchRecentBills() {
     loadingBills.value = true
     try {
-        const res = await getBillList()
+        const res = await getBillList({ current: 1, pageSize: 5 })
         recentBills.value = res.records ?? []
     }
     catch {
@@ -112,17 +116,6 @@ async function fetchRecentBills() {
 async function onRefresh() {
     return await Promise.all([fetchAccount(), fetchStats(), fetchRecentBills()])
 }
-
-watch(statsDay, fetchStats)
-
-onShow(() => {
-    onRefresh()
-})
-
-onPullDownRefresh(async () => {
-    await onRefresh()
-    uni.stopPullDownRefresh()
-})
 
 function goCards() {
     uni.switchTab({ url: '/pages/cards/index' })
@@ -139,6 +132,17 @@ function goProfile() {
 function goBillsList() {
     uni.navigateTo({ url: '/pages/bills/index' })
 }
+
+watch(statsDay, fetchStats)
+
+onShow(() => {
+    onRefresh()
+})
+
+onPullDownRefresh(async () => {
+    await onRefresh()
+    uni.stopPullDownRefresh()
+})
 </script>
 
 <template>
@@ -273,27 +277,34 @@ function goBillsList() {
                         {{ t('home.viewAll') }}
                     </t-button>
                 </view>
-                <!-- <t-divider :custom-style="{ '--td-divider-horizontal-margin': '30rpx' }" /> -->
-                <view v-if="loadingBills" class="py-8 text-center text-sm text-gray-400">
-                    Loading...
+                <view v-if="!loadingBills && recentBills.length === 0" class="py-8 text-center text-sm text-gray-400">
+                    {{ loadingMoreNoMoreText }}
                 </view>
-                <view v-else-if="recentBills.length === 0" class="py-8 text-center text-sm text-gray-400">
-                    No data yet
-                </view>
-                <view v-else class="flex flex-col gap-2">
-                    <fg-card-transaction-item
-                        v-for="item in recentBills"
-                        :key="item.id"
-                        :url="`/pages/bills/detail?id=${item.id}`"
-                        :title="item.merchantName"
-                        :card-name="item.cardName"
-                        :card-number="`${item.cardBin} **** ${item.cardNumber}`"
-                        :time="`${item.transactionTime} (UTC)`"
-                        :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
-                        :status="item.status"
-                        :status-name="item.transactionStatusName"
-                        class="home-glass-panel"
-                    />
+                <view class="flex flex-col gap-2">
+                    <template v-if="loadingBills && recentBills.length === 0">
+                        <fg-card-transaction-item
+                            v-for="n in RECENT_SKELETON_COUNT"
+                            :key="n"
+                            loading
+                            class="home-glass-panel"
+                        />
+                    </template>
+
+                    <template v-else>
+                        <fg-card-transaction-item
+                            v-for="item in recentBills"
+                            :key="item.id"
+                            :url="`/pages/bills/detail?id=${item.id}`"
+                            :title="item.merchantName"
+                            :card-name="item.cardName"
+                            :card-number="`${item.cardBin} **** ${item.cardNumber}`"
+                            :time="`${item.transactionTime} (UTC)`"
+                            :amount="currency(item.transactionAmount).format({ symbol: item.currencyCode === 'USD' ? '$' : `(${item.currencyCode})` })"
+                            :status="item.status"
+                            :status-name="item.transactionStatusName"
+                            class="home-glass-panel"
+                        />
+                    </template>
                 </view>
             </view>
         </view>

@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import type { ICardAllSummary, ICardRecord } from '@/api/types/cards'
-import currency from 'currency.js'
-import dayjs from 'dayjs'
 import { changeCardStatus, getCardList } from '@/api/pay/cards'
 import { t } from '@/locale'
 
@@ -18,11 +16,7 @@ const userCards = ref<ICardRecord[]>([])
 const cardAll = ref<ICardAllSummary | null>(null)
 const pagingRef = ref<ZPagingRef<ICardRecord>>()
 const changingId = ref<string | null>(null)
-
-function formatMoney(value: number | string): string {
-    const n = typeof value === 'string' ? Number.parseFloat(value) || 0 : Number(value) || 0
-    return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
+const topUpPopupVisible = ref(false)
 
 /** 掩码卡号展示：优先用 cardNumberLastFour（**** + 后四位），否则从 cardNumber 解析 */
 function displayMaskedCardNumber(card: ICardRecord): string {
@@ -44,16 +38,6 @@ function cardHolderName(card: ICardRecord): string {
     const first = (card.firstName || '').trim()
     const last = (card.lastName || '').trim()
     return [first, last].filter(Boolean).join(' ') || '—'
-}
-
-/** 卡片类型展示（后端如 "Virtual Card"，可后续按 cardBin 映射 Visa/Mastercard） */
-function cardTypeLabel(card: ICardRecord): string {
-    const typeName = (card.cardType || '').trim()
-    if (typeName === 'Virtual Card')
-        return 'Virtual'
-    if (typeName === 'Physical Card')
-        return 'Physical'
-    return 'Card'
 }
 
 const loading = ref(true)
@@ -85,9 +69,8 @@ function goDetail(card: ICardRecord) {
 }
 
 function onTopUp(card: ICardRecord) {
-    if (card.status === 1)
-        return
-    uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
+    console.log('🚀 ~ onTopUp ~ card:', card)
+    topUpPopupVisible.value = true
 }
 
 async function onToggleStatus(card: ICardRecord) {
@@ -107,16 +90,16 @@ async function onToggleStatus(card: ICardRecord) {
     }
 }
 
-onShow(() => {
-    pagingRef.value?.updateFixedLayout?.()
-    pagingRef.value?.refresh()
-})
+// onShow(() => {
+//     pagingRef.value?.updateFixedLayout?.()
+//     pagingRef.value?.refresh()
+// })
 </script>
 
 <template>
-    <page-meta page-style="overflow: hidden" />
+    <!-- <page-meta page-style="overflow: hidden" /> -->
 
-    <z-paging
+    <!-- <z-paging
         ref="pagingRef"
         v-model="userCards"
         paging-class="bg-page"
@@ -218,88 +201,6 @@ onShow(() => {
                     </template>
                 </t-swipe-cell>
             </view>
-
-            <!-- <view
-                v-for="card in userCards"
-                :key="card.id"
-                class="card-block overflow-hidden rounded-2xl bg-white"
-            >
-                <view class="from-[var(--td-brand-color-6)] to-[var(--td-brand-color-9)] bg-gradient-to-br p-5 text-white">
-                    <view class="flex items-center justify-between">
-                        <view class="flex items-center gap-2">
-                            <t-icon name="creditcard" size="40rpx" class="text-white opacity-90" />
-                            <text class="text-base font-medium opacity-95">{{ cardTypeLabel(card) }}</text>
-                            <view
-                                v-if="card.isTrialCard"
-                                class="rounded bg-amber-500/30 px-2 py-0.5 text-xs text-amber-200 font-medium"
-                            >
-                                {{ t('pages.cards.trialCard') }}
-                            </view>
-                        </view>
-                        <view
-                            class="rounded-full px-3 py-1 text-xs font-medium"
-                            :class="card.status === 0 ? 'bg-green-100/40 text-green-700' : 'bg-red-100/40 text-red-700'"
-                        >
-                            {{ card.status === 0 ? t('pages.cards.statusNormal') : t('pages.cards.statusDisabled') }}
-                        </view>
-                    </view>
-                    <text class="mt-4 block text-2xl font-semibold tracking-widest opacity-95">
-                        {{ displayMaskedCardNumber(card) }}
-                    </text>
-                    <view class="grid grid-cols-2 mt-4 gap-3">
-                        <view class="min-w-0 flex flex-col">
-                            <text class="text-xs opacity-75">{{ t('pages.cards.cardName') }}</text>
-                            <text class="mt-1 block truncate text-lg font-medium">
-                                {{ cardHolderName(card) }}
-                            </text>
-                        </view>
-                        <view class="flex flex-col items-end">
-                            <text class="text-xs opacity-75">{{ t('pages.cards.availableLimit') }}</text>
-                            <text class="mt-1 text-lg font-medium">
-                                {{ formatMoney(card.availableAmount) }}
-                            </text>
-                        </view>
-                    </view>
-                </view>
-
-                <view class="grid grid-cols-3 gap-3 p-4">
-                    <view>
-                        <t-button
-                            variant="outline"
-                            size="small"
-                            icon="browse"
-                            block
-                            @click="goDetail(card)"
-                        >
-                            {{ t('pages.cards.details') }}
-                        </t-button>
-                    </view>
-                    <view>
-                        <t-button
-                            variant="outline"
-                            size="small"
-                            icon="wallet"
-                            block
-                            :disabled="card.status === 1"
-                            @click="onTopUp(card)"
-                        >
-                            {{ t('pages.cards.topUp') }}
-                        </t-button>
-                    </view>
-                    <view>
-                        <t-button
-                            variant="outline"
-                            :theme="card.status === 0 ? 'danger' : 'default'"
-                            :loading="changingId === card.id"
-                            size="small"
-                            block
-                            @click="onToggleStatus(card)"
-                        >
-                            {{ card.status === 0 ? t('pages.cards.disable') : t('pages.cards.activate') }}
-                        </t-button>
-                    </view>
-                </view>
-            </view> -->
         </view>
 
         <template #loadingMoreDefault>
@@ -317,7 +218,19 @@ onShow(() => {
         <template #loadingMoreFail>
             <fg-z-paging-loading-more-fail />
         </template>
-    </z-paging>
+    </z-paging> -->
+
+    <view class="min-h-100vh">
+        <button
+            @click="onTopUp"
+        >
+            Top Up
+        </button>
+
+        <fg-top-up-popup
+            v-model:visible="topUpPopupVisible"
+        />
+    </view>
 </template>
 
 <style lang="scss" scoped>

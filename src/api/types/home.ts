@@ -30,7 +30,7 @@ export type TransactionStatus = 'SUCCESS' | 'FAILED' | 'PENDING' | 'CANCELLED' |
  * 交易记录单项（sys_business_bill/list）- 与后端实际返回字段对齐
  */
 export interface IBillRecord {
-    id: string
+    id: string | number
     businessToken: string
     reversalStatus: number
     transactionToken: string

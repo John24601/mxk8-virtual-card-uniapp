@@ -220,7 +220,6 @@ onLoad((options) => {
                     <fg-card-transaction-item
                         v-for="item in txList"
                         :key="item.id"
-                        :url="`/pages/bills/detail?id=${item.id}`"
                         :title="item.merchantName"
                         :card-name="item.cardName"
                         :card-number="`${item.cardBin} **** ${item.cardNumber}`"
@@ -239,6 +238,7 @@ onLoad((options) => {
                     <t-button
                         theme="primary"
                         block
+                        size="large"
                         icon="wallet"
                         @click="onTopUp"
                     >
@@ -249,6 +249,7 @@ onLoad((options) => {
                     <t-button
                         variant="outline"
                         block
+                        size="large"
                         icon="more"
                         @click="onMoreOptions"
                     >

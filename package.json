@@ -11,9 +11,7 @@
         "uiLibrary": "tdesign",
         "loginStrategy": true,
         "i18n": true,
-        "chartLibraries": [
-            "lime-echart"
-        ],
+        "chartLibraries": [],
         "cliVersion": "4.0.15",
         "unibestVersion": "4.3.0",
         "unibestUpdateTime": "2026-01-10",

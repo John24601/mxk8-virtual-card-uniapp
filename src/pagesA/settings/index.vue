@@ -12,15 +12,15 @@ definePage({
 const logoutLoading = ref(false)
 
 function goToLocale() {
-    uni.navigateTo({ url: '/pages/settings/locale' })
+    uni.navigateTo({ url: '/pagesA/settings/locale' })
 }
 
 function goToPassword() {
-    uni.navigateTo({ url: '/pages/settings/password' })
+    uni.navigateTo({ url: '/pagesA/settings/password' })
 }
 
 function goToSecondaryPassword() {
-    uni.navigateTo({ url: '/pages/settings/secondary-password' })
+    uni.navigateTo({ url: '/pagesA/settings/secondary-password' })
 }
 
 async function handleLogout() {
@@ -74,14 +74,14 @@ onLoad(() => {
                     :right-icon-style="{ fontSize: '24rpx' }"
                     @click="goToSecondaryPassword"
                 />
-                <t-cell
+                <!-- <t-cell
                     :title="t('settings.localeAndTranslation')"
                     arrow
                     hover
                     :bordered="false"
                     :right-icon-style="{ fontSize: '24rpx' }"
                     @click="goToLocale"
-                />
+                /> -->
             </t-cell-group>
         </view>
 

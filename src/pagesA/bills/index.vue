@@ -57,7 +57,7 @@ function onFilterChange(value: 'all' | 'Credit' | 'Debit') {
 function goDetail(record: IBillRecord) {
     if (!record.id)
         return
-    uni.navigateTo({ url: `/pages/bills/detail?id=${encodeURIComponent(record.id)}` })
+    uni.navigateTo({ url: `/pagesA/bills/detail?id=${encodeURIComponent(record.id)}` })
 }
 
 onShow(() => {
@@ -93,12 +93,19 @@ onShow(() => {
 
         <view class="px-4 py-3">
             <view class="flex flex-col gap-2">
-                <view
-                    v-for="item in list"
-                    :key="item.id"
-                >
+                <template v-if="loading && list.length === 0">
                     <fg-card-transaction-item
-                        :url="`/pages/bills/detail?id=${item.id}`"
+                        v-for="n in 5"
+                        :key="n"
+                        loading
+                    />
+                </template>
+
+                <template v-else>
+                    <fg-card-transaction-item
+                        v-for="item in list"
+                        :key="item.id"
+                        :url="`/pagesA/bills/detail?id=${item.id}`"
                         :title="item.merchantName"
                         :card-name="item.cardName"
                         :card-number="`${item.cardBin} **** ${item.cardNumber}`"
@@ -107,7 +114,7 @@ onShow(() => {
                         :status="item.status"
                         :status-name="item.transactionStatusName"
                     />
-                </view>
+                </template>
             </view>
         </view>
     </z-paging>

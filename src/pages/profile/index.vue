@@ -32,7 +32,7 @@ function handleComingSoon() {
 }
 
 function handleSettings() {
-    uni.navigateTo({ url: '/pages/settings/index' })
+    uni.navigateTo({ url: '/pagesA/settings/index' })
 }
 
 const menuItems = [

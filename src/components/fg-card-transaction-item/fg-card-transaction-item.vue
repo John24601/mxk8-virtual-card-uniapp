@@ -26,7 +26,7 @@ defineProps<Props>()
 <template>
     <navigator
         :url="url"
-        class="box-border min-h-[210rpx] overflow-hidden rounded-2xl bg-container p-4"
+        class="box-border min-h-[200rpx] overflow-hidden rounded-2xl bg-container p-4"
     >
         <t-skeleton
             theme="image"
@@ -38,7 +38,7 @@ defineProps<Props>()
                 { width: '50%', height: '30rpx', type: 'rect' },
             ]"
         >
-            <view v-if="!loading" class="flex items-start gap-2">
+            <!-- <view v-if="!loading" class="flex items-start gap-2">
                 <view class="w-0 flex-1">
                     <text class="block truncate font-medium">
                         {{ title || '--' }}
@@ -66,6 +66,30 @@ defineProps<Props>()
                     >
                         {{ statusName }}
                     </text>
+                </view>
+            </view> -->
+
+            <view v-if="!loading" class="flex flex-col">
+                <view class="flex items-center">
+                    <text class="w-0 flex-1 truncate pr-4">{{ title || '--' }}</text>
+                    <text
+                        class="w-1/4 text-right text-lg font-semibold"
+                        :class="[
+                            ['PENDING', 'COMPLETED'].includes(status) && 'text-success',
+                            status === 'DECLINED' && 'text-error',
+                        ]"
+                    >
+                        {{ amount }}
+                    </text>
+                </view>
+
+                <view v-if="cardName && cardNumber" class="mt-2 flex items-center justify-between gap-4 text-sm text-secondary">
+                    <text>{{ cardName }}</text>
+                    <text>{{ cardNumber }}</text>
+                </view>
+
+                <view class="mt-2 text-sm text-placeholder">
+                    {{ time }}
                 </view>
             </view>
         </t-skeleton>

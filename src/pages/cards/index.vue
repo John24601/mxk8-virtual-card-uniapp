@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { ICardAllSummary, ICardRecord } from '@/api/types/cards'
+import currency from 'currency.js'
+import dayjs from 'dayjs'
 import { changeCardStatus, getCardList } from '@/api/pay/cards'
 import { t } from '@/locale'
 
@@ -57,13 +59,13 @@ async function onQuery(pageNo: number, pageSize: number) {
 }
 
 function goCreate() {
-    uni.navigateTo({ url: '/pages/cards/create' })
+    uni.navigateTo({ url: '/pagesA/cards/create' })
 }
 
 function goDetail(card: ICardRecord) {
     console.log('🚀 ~ goDetail ~ card:', card)
     const token = card.cardToken || card.id
-    uni.navigateTo({ url: `/pages/cards/detail?cardToken=${encodeURIComponent(token)}` }).catch(() => {
+    uni.navigateTo({ url: `/pagesA/cards/detail?cardToken=${encodeURIComponent(token)}` }).catch(() => {
         uni.showToast({ title: t('profile.comingSoon'), icon: 'none' })
     })
 }
@@ -90,16 +92,16 @@ async function onToggleStatus(card: ICardRecord) {
     }
 }
 
-// onShow(() => {
-//     pagingRef.value?.updateFixedLayout?.()
-//     pagingRef.value?.refresh()
-// })
+onShow(() => {
+    pagingRef.value?.updateFixedLayout?.()
+    pagingRef.value?.refresh()
+})
 </script>
 
 <template>
-    <!-- <page-meta page-style="overflow: hidden" /> -->
+    <page-meta page-style="overflow: hidden" />
 
-    <!-- <z-paging
+    <z-paging
         ref="pagingRef"
         v-model="userCards"
         paging-class="bg-page"
@@ -218,9 +220,9 @@ async function onToggleStatus(card: ICardRecord) {
         <template #loadingMoreFail>
             <fg-z-paging-loading-more-fail />
         </template>
-    </z-paging> -->
+    </z-paging>
 
-    <view class="min-h-100vh">
+    <!-- <view class="min-h-100vh">
         <button
             @click="onTopUp"
         >
@@ -230,7 +232,7 @@ async function onToggleStatus(card: ICardRecord) {
         <fg-top-up-popup
             v-model:visible="topUpPopupVisible"
         />
-    </view>
+    </view> -->
 </template>
 
 <style lang="scss" scoped>

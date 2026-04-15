@@ -81,7 +81,7 @@ function onTopUp() {
 }
 
 function goViewAllTx() {
-    uni.navigateTo({ url: `/pages/bills/index?cardToken=${encodeURIComponent(cardToken.value)}` })
+    uni.navigateTo({ url: `/pagesA/bills/index?cardToken=${encodeURIComponent(cardToken.value)}` })
 }
 
 /** 持卡人姓名：firstName + lastName */
@@ -171,7 +171,6 @@ onLoad((options) => {
         v-model="txList"
         paging-class="bg-page"
         safe-area-inset-bottom
-        :loading-more-enabled="false"
         @query="onQuery"
     >
         <view class="overflow-hidden">
@@ -205,7 +204,7 @@ onLoad((options) => {
             <view class="mx-4 mb-6 mt-6">
                 <view class="mb-3 flex items-center justify-between pl-2">
                     <text class="font-bold">{{ t('pages.cards.cardTransactions') }}</text>
-                    <t-button
+                    <!-- <t-button
                         theme="light"
                         shape="round"
                         size="extra-small"
@@ -213,7 +212,7 @@ onLoad((options) => {
                         @click="goViewAllTx"
                     >
                         {{ t('home.viewAll') }}
-                    </t-button>
+                    </t-button> -->
                 </view>
 
                 <view class="flex flex-col gap-2">

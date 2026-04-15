@@ -19,8 +19,8 @@
 | 06-cards-list.html | 卡片列表 | pages/cards/list |
 | 07-card-detail.html | 卡片详情 | pages/cards/detail |
 | 08-card-create.html | 创建卡片 | pages/cards/create |
-| 09-bills-list.html | 交易记录列表 | pages/bills/list |
-| 10-bill-detail.html | 账单详情 | pages/bills/detail |
+| 09-bills-list.html | 交易记录列表 | pagesA/bills/list |
+| 10-bill-detail.html | 账单详情 | pagesA/bills/detail |
 | 11-funds-list.html | 资金流水 | pages/funds/list |
 
 ## 样式说明

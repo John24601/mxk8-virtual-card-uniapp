@@ -577,7 +577,7 @@ onLoad((options) => {
                                         t-class-content="font-medium!"
                                         theme="primary"
                                         :content="t('cards.feeSchedule')"
-                                        :navigator-props="{ url: '/pages/fee/index' }"
+                                        :navigator-props="{ url: '/pagesA/fee/index' }"
                                         hover
                                         underline
                                     />

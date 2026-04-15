@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import type { IFundRecord } from '@/api/types/funds'
 import type { IBillRecord, IFundStatsRes, IUserAccountRes } from '@/api/types/home'
 import currency from 'currency.js'
 import { getBillList } from '@/api/pay/bills'
-import { getTotalFundAmount, getUserAccount } from '@/api/pay/funds'
+import { getFundList, getTotalFundAmount, getUserAccount } from '@/api/pay/funds'
 import { t } from '@/locale'
 import { useUserStore } from '@/store/user'
 
@@ -19,15 +20,18 @@ definePage({
 })
 
 const RECENT_SKELETON_COUNT = 2
+const RECENT_FUNDS_PAGE_SIZE = 5
 
 const balanceVisible = ref(true)
 const account = ref<IUserAccountRes | null>(null)
 const statsDay = ref<7 | 30 | 90>(7)
 const fundStats = ref<IFundStatsRes | null>(null)
 const recentBills = ref<IBillRecord[]>([])
+const recentFunds = ref<IFundRecord[]>([])
 const loading = ref(false)
 const loadingStats = ref(false)
 const loadingBills = ref(true)
+const loadingFunds = ref(true)
 
 const loadingMoreNoMoreText = computed(() => uni.$zp.config['loading-more-no-more-text'][uni.getLocale()])
 
@@ -73,6 +77,40 @@ function formatMoney(value: number, hidden = false) {
     return hidden ? t('home.amountHidden') : currency(value).format()
 }
 
+function isFundCredit(type?: string) {
+    const s = (type ?? '').toString().toLowerCase()
+    return s === 'credit' || s === '1'
+}
+
+function fundTypeLabel(type?: string) {
+    return isFundCredit(type) ? t('home.fundTypeCredit') : t('home.fundTypeDebit')
+}
+
+function formatFundAmount(item: IFundRecord, hidden: boolean) {
+    if (hidden)
+        return t('home.amountHidden')
+    const n = Number(item.amount ?? 0)
+    const formatted = currency(Math.abs(n)).format()
+    const sign = isFundCredit(item.type) ? '+' : '-'
+    return `${sign}${formatted}`
+}
+
+function fundTimeText(item: IFundRecord) {
+    const raw = item.createTime || item.initiated
+    return raw ? `${raw} (UTC)` : '--'
+}
+
+function fundStatusClass(status?: string) {
+    const s = (status ?? '').toLowerCase()
+    if (['completed', 'success'].some(k => s.includes(k)))
+        return 'text-success'
+    if (['failed', 'fail', 'declined'].some(k => s.includes(k)))
+        return 'text-error'
+    if (['pending', 'processing'].some(k => s.includes(k)))
+        return 'text-warning'
+    return 'text-placeholder'
+}
+
 async function fetchAccount() {
     loading.value = true
     try {
@@ -113,24 +151,35 @@ async function fetchRecentBills() {
     }
 }
 
+async function fetchRecentFunds() {
+    loadingFunds.value = true
+    try {
+        const res = await getFundList({ current: 1, pageSize: RECENT_FUNDS_PAGE_SIZE })
+        recentFunds.value = res.records ?? []
+    }
+    catch {
+        recentFunds.value = []
+    }
+    finally {
+        loadingFunds.value = false
+    }
+}
+
 async function onRefresh() {
-    return await Promise.all([fetchAccount(), fetchStats(), fetchRecentBills()])
+    return await Promise.all([fetchAccount(), fetchStats(), fetchRecentBills(), fetchRecentFunds()])
 }
 
 function goCards() {
     uni.switchTab({ url: '/pages/cards/index' })
 }
-function goBills() {
-    uni.navigateTo({ url: '/pages/bills/index' })
-}
-function goFunds() {
-    uni.navigateTo({ url: '/pages/funds/list' })
-}
 function goProfile() {
     uni.switchTab({ url: '/pages/profile/index' })
 }
 function goBillsList() {
-    uni.navigateTo({ url: '/pages/bills/index' })
+    uni.navigateTo({ url: '/pagesA/bills/index' })
+}
+function goFundsList() {
+    uni.navigateTo({ url: '/pagesA/funds/index' })
 }
 
 watch(statsDay, fetchStats)
@@ -230,38 +279,38 @@ onPullDownRefresh(async () => {
 
             <!-- 快捷入口 -->
             <!-- <view class="mx-4 mt-2">
-            <t-grid
-                theme="card"
-                hover
-                :custom-style="{
-                    'margin': 0,
-                    '--td-grid-bg-color': 'transparent',
-                    '--td-grid-item-bg-color': 'transparent',
-                    '--td-grid-item-image-middle-width': '100rpx',
-                }"
-            >
-                <t-grid-item
-                    :text="t('home.shortcutMyCards')"
-                    icon="creditcard"
-                    @click="goCards"
-                />
-                <t-grid-item
-                    :text="t('home.shortcutBills')"
-                    icon="file-paste"
-                    @click="goBills"
-                />
-                <t-grid-item
-                    :text="t('home.shortcutFunds')"
-                    icon="chart"
-                    @click="goFunds"
-                />
-                <t-grid-item
-                    :text="t('home.shortcutProfile')"
-                    icon="user"
-                    @click="goProfile"
-                />
-            </t-grid>
-        </view> -->
+                    <t-grid
+                        theme="card"
+                        hover
+                        :custom-style="{
+                            'margin': 0,
+                            '--td-grid-bg-color': 'transparent',
+                            '--td-grid-item-bg-color': 'transparent',
+                            '--td-grid-item-image-middle-width': '100rpx',
+                        }"
+                    >
+                        <t-grid-item
+                            :text="t('home.shortcutMyCards')"
+                            icon="creditcard"
+                            @click="goCards"
+                        />
+                        <t-grid-item
+                            :text="t('home.shortcutBills')"
+                            icon="file-paste"
+                            @click="goBills"
+                        />
+                        <t-grid-item
+                            :text="t('home.shortcutFunds')"
+                            icon="chart"
+                            @click="goFunds"
+                        />
+                        <t-grid-item
+                            :text="t('home.shortcutProfile')"
+                            icon="user"
+                            @click="goProfile"
+                        />
+                    </t-grid>
+                </view> -->
 
             <!-- 最近交易 -->
             <view class="mx-4 mt-6 pb-3">
@@ -294,7 +343,7 @@ onPullDownRefresh(async () => {
                         <fg-card-transaction-item
                             v-for="item in recentBills"
                             :key="item.id"
-                            :url="`/pages/bills/detail?id=${item.id}`"
+                            :url="`/pagesA/bills/detail?id=${item.id}`"
                             :title="item.merchantName"
                             :card-name="item.cardName"
                             :card-number="`${item.cardBin} **** ${item.cardNumber}`"
@@ -304,6 +353,88 @@ onPullDownRefresh(async () => {
                             :status-name="item.transactionStatusName"
                             class="home-glass-panel"
                         />
+                    </template>
+                </view>
+            </view>
+
+            <!-- 最新资金（资金流水摘要） -->
+            <view class="mx-4 mt-6 pb-3">
+                <view class="mb-3 flex items-center justify-between pl-2">
+                    <text class="text-lg font-bold">{{ t('home.recentFundFlow') }}</text>
+                    <t-button
+                        theme="light"
+                        shape="round"
+                        size="extra-small"
+                        t-class="m-0!"
+                        @click="goFundsList"
+                    >
+                        {{ t('home.viewAll') }}
+                    </t-button>
+                </view>
+                <view v-if="!loadingFunds && recentFunds.length === 0" class="py-8 text-center text-sm text-gray-400">
+                    {{ loadingMoreNoMoreText }}
+                </view>
+                <view class="flex flex-col gap-2">
+                    <template v-if="loadingFunds && recentFunds.length === 0">
+                        <view
+                            v-for="n in RECENT_SKELETON_COUNT"
+                            :key="`fund-sk-${n}`"
+                            class="home-glass-panel rounded-2xl p-4"
+                        >
+                            <t-skeleton
+                                theme="image"
+                                animation="gradient"
+                                :loading="true"
+                                :row-col="[
+                                    [{ width: '55%', height: '36rpx', type: 'rect' }, { width: '28%', height: '36rpx', type: 'rect' }],
+                                    { width: '45%', height: '28rpx', type: 'rect' },
+                                ]"
+                            >
+                                <view />
+                            </t-skeleton>
+                        </view>
+                    </template>
+
+                    <template v-else>
+                        <view
+                            v-for="item in recentFunds"
+                            :key="item.id"
+                            class="home-glass-panel rounded-2xl p-4"
+                        >
+                            <view class="flex items-start justify-between gap-2">
+                                <view class="min-w-0 flex-1">
+                                    <text class="block truncate font-medium">
+                                        {{ item.description?.trim() || fundTypeLabel(item.type) }}
+                                    </text>
+                                    <text class="mt-1 block text-xs text-placeholder">
+                                        {{ fundTimeText(item) }}
+                                    </text>
+                                </view>
+                                <view class="max-w-[45%] flex shrink-0 flex-col items-end text-right">
+                                    <text
+                                        class="font-semibold"
+                                        :class="isFundCredit(item.type) ? 'text-success' : 'text-error'"
+                                    >
+                                        {{ formatFundAmount(item, !balanceVisible) }}
+                                    </text>
+                                    <text class="mt-1 text-xs text-secondary">
+                                        {{ t('home.fundAvailableBalanceLabel') }}
+                                        {{
+                                            balanceVisible
+                                                ? currency(Number(item.availableBalance ?? 0)).format()
+                                                : t('home.amountHidden')
+                                        }}
+                                    </text>
+                                    <text
+                                        v-if="item.status"
+                                        class="mt-0.5 text-xs"
+                                        :class="fundStatusClass(item.status)"
+                                    >
+                                        {{ item.status }}
+                                    </text>
+                                </view>
+                            </view>
+                        </view>
                     </template>
                 </view>
             </view>
